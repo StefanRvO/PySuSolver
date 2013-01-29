@@ -169,6 +169,12 @@ def DrawBoard(Solver=-1):
         #Error in Collum. Mark error red
         text=font.render(str(Solver[1]),True,(255,0,0))
         screen.blit(text,(int(float(SCREENSIZE[0])/9*((Solver[4])+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((Solver[2])+0.5)-text.get_height() / 2)))
+    elif Solver[0]==4: #To few numbers entered
+        font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/12)     
+        text= font2.render("You only entered "+str(Solver[1])+" numbers",True,(255,0,0))
+        text2= font2.render("You need to enter at least 16!",True,(255,0,0))
+        screen.blit(text,(SCREENSIZE[0]/2 -text.get_width() / 2, SCREENSIZE[1]/2 - text.get_height()))
+        screen.blit(text2,(SCREENSIZE[0]/2 -text2.get_width() / 2, SCREENSIZE[1]/2 + text2.get_height()/2))
         
         
     pygame.display.flip()
@@ -247,14 +253,15 @@ while 1:
             elif event.key==K_c: #This clears the board
                 BoardNumbers=[[""]*9 for i in range(9)]
             elif event.key==K_RETURN:
-                #SolvingBoard=[""]*81
-                #for i in range(9):
-                #    for j in range(9):
-                #        if not BoardNumbers[i][j]=="":
-                #            SolvingBoard[i*9+j]=[BoardNumbers[i][j],1]
-                #        else:
-                #            SolvingBoard[i*9+j]=["",0]
-                Ready=CheckMissplacements(BoardNumbers,0) 
+                Ready=CheckMissplacements(BoardNumbers,0)
+                #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
+                numbers=[]
+                for i in range(9):
+                    for j in range(9):
+                        numbers.append(BoardNumbers[i][j])
+                enteredNumbers=81-numbers.count("")
+                if enteredNumbers<=15:
+                    Ready=(4,enteredNumbers)
                 #print Ready #debug
                 DrawBoard(Ready)     #Some remains to be written
                 Enterpressed=1
