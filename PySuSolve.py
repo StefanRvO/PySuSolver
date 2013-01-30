@@ -13,44 +13,51 @@ def CheckMissplacements(Board,Solver=0):
     #checks if the numbers is correctly placed on the board so the solving can begin. e.g. There must not be the same number in the same block, row or collum twice.
 #    return 0 if no errors, 1 if error in blocks, 2 if error in rows, and 3 if error in collums
     #Check the blocks
-    for x in range(3):
-        for y in range(3):
+    for x in xrange(3):
+        for y in xrange(3):
             Blocknumbers=[]
-            for i in range(3):
-                for j in range (3):
-                    if Solver==0:
-                        Blocknumbers.append(Board[3*x+i][3*y+j])
-                    else:
-                        Blocknumbers.append(Board[(3*x+i)*9+(3*y+j)][0])
-            for l in range(10):
+            #for i in range(3):
+            #    for j in range (3):
+            if Solver==0:
+                #Blocknumbers.append(Board[3*x+i][3*y+j])
+                Blocknumbers=[Board[3*x+0][3*y+0],Board[3*x+0][3*y+1],Board[3*x+0][3*y+2],Board[3*x+1][3*y+0],Board[3*x+1][3*y+1],Board[3*x+1][3*y+2],Board[3*x+2][3*y+0],Board[3*x+2][3*y+1],Board[3*x+2][3*y+2]] #This is ugly, but hopefully more effective than .append()
+                      
+            else:
+                #Blocknumbers.append(Board[(3*x+i)*9+(3*y+j)][0])
+                Blocknumbers=[Board[(3*x+0)*9+(3*y+0)][0],Board[(3*x+0)*9+(3*y+1)][0],Board[(3*x+0)*9+(3*y+2)][0],Board[(3*x+1)*9+(3*y+0)][0],Board[(3*x+1)*9+(3*y+1)][0],Board[(3*x+1)*9+(3*y+2)][0],Board[(3*x+2)*9+(3*y+0)][0],Board[(3*x+2)*9+(3*y+1)][0],Board[(3*x+2)*9+(3*y+2)][0]]
+            for l in xrange(1,10):
                 if (Blocknumbers.count(l)>1):
                     if(Solver==0):
                         return (1,l,x,y,Blocknumbers.index(l))
                     else:
                         return -1
     # Check Rows
-    for x in range(9):
+    for x in xrange(9):
         Rownumbers=[]
-        for y in range(9):
-            if Solver==0:
-                Rownumbers.append(Board[x][y])
-            else:
-                Rownumbers.append(Board[x*9+y][0])
-        for l in range(10):
+        #for y in range(9):
+        if Solver==0:
+            #Rownumbers.append(Board[x][y])
+            Rownumbers=[Board[x][0],Board[x][1],Board[x][2],Board[x][3],Board[x][4],Board[x][5],Board[x][6],Board[x][7],Board[x][8]]
+        else:
+            #Rownumbers.append(Board[x*9+y][0])
+            Rownumbers=[Board[x*9+0][0],Board[x*9+1][0],Board[x*9+2][0],Board[x*9+3][0],Board[x*9+4][0],Board[x*9+5][0],Board[x*9+6][0],Board[x*9+7][0],Board[x*9+8][0]]
+        for l in xrange(1,10):
             if (Rownumbers.count(l)>1):
                 if (Solver==0):
                     return (2,l,x,y,Rownumbers.index(l))
                 else:
                     return -1
     #Check Collums            
-    for y in range(9):
+    for y in xrange(9):
         Collumnumbers=[]
-        for x in range(9):
-            if Solver==0:
-                Collumnumbers.append(Board[x][y])
-            else:
-                Collumnumbers.append(Board[x*9+y][0])
-        for l in range(10):
+        #for x in range(9):
+        if Solver==0:
+            #Collumnumbers.append(Board[x][y])
+            Coullumnumbers=[Board[0][y],Board[1][y],Board[2][y],Board[3][y],Board[4][y],Board[5][y],Board[6][y],Board[7][y],Board[8][y]]
+        else:
+            #Collumnumbers.append(Board[x*9+y][0])
+            Collumnumbers=[Board[0*9+y][0],Board[1*9+y][0],Board[2*9+y][0],Board[3*9+y][0],Board[4*9+y][0],Board[5*9+y][0],Board[6*9+y][0],Board[7*9+y][0],Board[8*9+y][0]]
+        for l in xrange(1,10):
             if (Collumnumbers.count(l)>1):
                 if Solver==0:
                     return (3,l,y,x,Collumnumbers.index(l))
@@ -272,14 +279,14 @@ while 1:
                 #if enteredNumbers<=15:
                 #    Ready=(4,enteredNumbers)
                 #print Ready #debug
-                DrawBoard(Ready)     #Some remains to be written
+                DrawBoard(Ready)    
                 Enterpressed=1
                 if Ready==0:
                     #print SolveBoard()
                    Calcullations=0
                    SolvedBoard=SolveBoard()
-                   DrawSolvedBoard(SolvedBoard) #remains to be written
-                   print  SolvedBoard[-1]
+                   DrawSolvedBoard(SolvedBoard) 
+                   #print  SolvedBoard[-1]
                     
             if Enterpressed==0:
                 DrawBoard()
@@ -288,7 +295,7 @@ while 1:
                 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button==1:
-                #There seems to be a small slip in field selection. Should be fixed at some point
+
                 #print event.pos #debug
                 #print ("Field number="+str(int(float(event.pos[0])/SCREENSIZE[0]*9))+","+str(int(float(event.pos[1])/SCREENSIZE[1]*9))) #debug
                 SelectedField=(int(float(event.pos[0])/SCREENSIZE[0]*9),int(float(event.pos[1])/SCREENSIZE[1]*9))
