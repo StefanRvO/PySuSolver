@@ -91,39 +91,33 @@ def SolveBoard():
 
 
     #Now we make a loop.
-    Calcullations=0
+    Jumps=0
     ForceIncrement=0
 #    print "solving"
     CurrentCell=-1
     while True:
         CurrentCell+=1
+        Jumps+=1
         #print SolvingBoard
 #        print CurrentCell
         if CurrentCell>80:
             #this //should// only happen when the board is solved
-            SolvingBoard.append(Calcullations) 
+            SolvingBoard.append(Jumps) 
             return SolvingBoard
         while SolvingBoard[CurrentCell][1]==1:
             CurrentCell+=1
             if CurrentCell>80:
                 #this //should// only happen when the board is solved
-                SolvingBoard.append(Calcullations) 
+                SolvingBoard.append(Jumps) 
                 return SolvingBoard
 
         SolvingBoard[CurrentCell][0]=1
-        Calcullations+=1
         while True :
             if ForceIncrement:
-                if SolvingBoard[CurrentCell][0]=="":
-                    SolvingBoard[CurrentCell][0]=0
                 SolvingBoard[CurrentCell][0]+=1
-                Calcullations+=1
                 ForceIncrement=0
             if CheckMissplacements(SolvingBoard,1)==-1 or SolvingBoard[CurrentCell][0]==10:
-                if SolvingBoard[CurrentCell][0]=="":
-                    SolvingBoard[CurrentCell][0]=0
                 SolvingBoard[CurrentCell][0]+=1
-                Calcullations+=1
                 if SolvingBoard[CurrentCell][0]>=10:
                     SolvingBoard[CurrentCell][0]=""
                     while True:
@@ -271,13 +265,13 @@ while 1:
             elif event.key==K_RETURN:
                 Ready=CheckMissplacements(BoardNumbers,0)
                 #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
-                #numbers=[]
-                #for i in range(9):
-                #    for j in range(9):
-                #        numbers.append(BoardNumbers[i][j])
-                #enteredNumbers=81-numbers.count("")
-                #if enteredNumbers<=15:
-                #    Ready=(4,enteredNumbers)
+                numbers=[]
+                for i in range(9):
+                    for j in range(9):
+                        numbers.append(BoardNumbers[i][j])
+                enteredNumbers=81-numbers.count("")
+                if enteredNumbers<=15:
+                    Ready=(4,enteredNumbers)
                 #print Ready #debug
                 DrawBoard(Ready)    
                 Enterpressed=1
@@ -286,7 +280,7 @@ while 1:
                    Calcullations=0
                    SolvedBoard=SolveBoard()
                    DrawSolvedBoard(SolvedBoard) 
-                   #print  SolvedBoard[-1]
+                   print  SolvedBoard[-1]
                     
             if Enterpressed==0:
                 DrawBoard()
