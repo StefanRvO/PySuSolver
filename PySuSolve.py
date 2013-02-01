@@ -21,7 +21,7 @@ def CheckMissplacements(Board,Solver=0):
             if Solver==0:
                 #Blocknumbers.append(Board[3*x+i][3*y+j])
                 Blocknumbers=[Board[3*x+0][3*y+0],Board[3*x+0][3*y+1],Board[3*x+0][3*y+2],Board[3*x+1][3*y+0],Board[3*x+1][3*y+1],Board[3*x+1][3*y+2],Board[3*x+2][3*y+0],Board[3*x+2][3*y+1],Board[3*x+2][3*y+2]] #This is ugly, but hopefully more effective than .append()
-                      
+
             else:
                 #Blocknumbers.append(Board[(3*x+i)*9+(3*y+j)][0])
                 Blocknumbers=[Board[(3*x+0)*9+(3*y+0)][0],Board[(3*x+0)*9+(3*y+1)][0],Board[(3*x+0)*9+(3*y+2)][0],Board[(3*x+1)*9+(3*y+0)][0],Board[(3*x+1)*9+(3*y+1)][0],Board[(3*x+1)*9+(3*y+2)][0],Board[(3*x+2)*9+(3*y+0)][0],Board[(3*x+2)*9+(3*y+1)][0],Board[(3*x+2)*9+(3*y+2)][0]]
@@ -47,7 +47,7 @@ def CheckMissplacements(Board,Solver=0):
                     return (2,l,x,y,Rownumbers.index(l))
                 else:
                     return -1
-    #Check Collums            
+    #Check Collums
     for y in xrange(9):
         Collumnumbers=[]
         #for x in range(9):
@@ -63,11 +63,37 @@ def CheckMissplacements(Board,Solver=0):
                     return (3,l,y,x,Collumnumbers.index(l))
                 else:
                     return -1
-                
-    return 0
-    
 
-    
+    return 0
+
+def FillPossible(Board):
+    Check=1
+    while Check==1:
+        Check=0
+        for i in range(81):
+            if Board[i][1]==1 or Board[i][3]==0:
+                continue
+            else:
+                Board[i][3]=[]
+            for j in range(1,10):
+                Board[i][0]=j
+                if not CheckMissplacements(Board,1)==-1:
+                    Board[i][3].append(j)
+            if len(Board[i][3])==1:
+                Board[i][0]=Board[i][3][0]
+                Board[i][3]=0
+                Check=1
+            else:
+                Board[i][0]=""
+    return Board
+
+
+
+
+
+
+
+
 def SolveBoard():
     Solved=0
     #Here we solve the board
@@ -77,65 +103,79 @@ def SolveBoard():
     for i in range(9):
         for j in range(9):
             if not BoardNumbers[i][j]=="":
-                SolvingBoard[i*9+j]=[BoardNumbers[i][j],1]
+                SolvingBoard[i*9+j]=[BoardNumbers[i][j],1,0,[]]
             else:
-                SolvingBoard[i*9+j]=["",0]
-            
-    
+                SolvingBoard[i*9+j]=["",0,0,[]]
+
+
 #We have now copied in the entered board. Solvingboard is now of a list of list.
 #The list contains the following:
 #[0] contains the value of the cell
 #[1] Contains either the numbers 0 or 1
 #0 means we should not edit this cell. These are the cells entered by the user, 0 means we are alowed to edit the cell
 #We have also reformated it a bit. It is now one-dimensional. This makes things a bit easier later on.
+#[3] Contains a list
+#The list contains the number of possible values for the field
+#We should first fill the tuples.
+#This is done with FillPossible()
+#[2] contains the number in the list which is currently active
+
+
 
 
     #Now we make a loop.
+    FillPossible(SolvingBoard)
     Jumps=0
     ForceIncrement=0
-#    print "solving"
+    print "solving"
     CurrentCell=-1
     while True:
         CurrentCell+=1
         Jumps+=1
         #print SolvingBoard
-#        print CurrentCell
+        #print CurrentCell
         if CurrentCell>80:
-            #this //should// only happen when the board is solved
-            SolvingBoard.append(Jumps) 
+           #this //should// only happen when the board is solved
+            SolvingBoard.append(Jumps)
             return SolvingBoard
-        while SolvingBoard[CurrentCell][1]==1:
+        while SolvingBoard[CurrentCell][1]==1 or SolvingBoard[CurrentCell][3]==0:
             CurrentCell+=1
             if CurrentCell>80:
                 #this //should// only happen when the board is solved
-                SolvingBoard.append(Jumps) 
+                SolvingBoard.append(Jumps)
                 return SolvingBoard
-
-        SolvingBoard[CurrentCell][0]=1
+        SolvingBoard[CurrentCell][0]=SolvingBoard[CurrentCell][3][0]
+        SolvingBoard[CurrentCell][2]=0
         while True :
             if ForceIncrement:
-                SolvingBoard[CurrentCell][0]+=1
+                SolvingBoard[CurrentCell][2]+=1
                 ForceIncrement=0
-            if CheckMissplacements(SolvingBoard,1)==-1 or SolvingBoard[CurrentCell][0]==10:
-                SolvingBoard[CurrentCell][0]+=1
-                if SolvingBoard[CurrentCell][0]>=10:
+                if not SolvingBoard[CurrentCell][2]+1>len(SolvingBoard[CurrentCell][3]):
+                    SolvingBoard[CurrentCell][0]=SolvingBoard[CurrentCell][3][SolvingBoard[CurrentCell][2]]
+                    
+            if CheckMissplacements(SolvingBoard,1)==-1 or SolvingBoard[CurrentCell][2]+1>len(SolvingBoard[CurrentCell][3]):
+                SolvingBoard[CurrentCell][2]+=1
+                if not SolvingBoard[CurrentCell][2]+1>len(SolvingBoard[CurrentCell][3]):
+                    SolvingBoard[CurrentCell][0]=SolvingBoard[CurrentCell][3][SolvingBoard[CurrentCell][2]]
+                else:
                     SolvingBoard[CurrentCell][0]=""
+                    SolvingBoard[CurrentCell][2]=0
                     while True:
                         CurrentCell-=1
                         ForceIncrement=1
-                        if not SolvingBoard[CurrentCell][1]==1:
+                        if not SolvingBoard[CurrentCell][1]==1 or SolvingBoard[CurrentCell][3]==0:
                             #print CurrentCell
                             break
                         if CurrentCell<0:
                             return -1
             else:
                 break
-        
-            
-            
-        
-    
-    
+
+
+
+
+
+
 
 def DrawBoard(Solver=-1):
     screen.fill(BACKGROUNDCOLOR)
@@ -147,10 +187,10 @@ def DrawBoard(Solver=-1):
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]),3)
             pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[0])/9*(x+1)),3)
         else:
-        
+
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]))
             pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[0])/9*(x+1)))
-    
+
     #Draw numbers on board
     for x in range(9):
         for y in range(9):
@@ -162,15 +202,15 @@ def DrawBoard(Solver=-1):
         #do Nothing
         pygame.time.wait(0)
     elif Solver==0:
-        font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/8)     
+        font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/8)
         text= font2.render("Solving the Board..",True,(0,0,255))
         screen.blit(text,(SCREENSIZE[0]/2 -text.get_width() / 2, SCREENSIZE[1]/2 - text.get_height() /2))
     elif Solver[0]==1:
         #error in block, mark the error red
         text=font.render(str(Solver[1]),True,(255,0,0))
-        
+
         screen.blit(text,(int(float(SCREENSIZE[0])/9*((3*Solver[2]+Solver[4]/3)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((3*Solver[3]+Solver[4]%3)+0.5)-text.get_height() / 2)))
-        
+
     elif Solver[0]==2:
         #Error in Row. Mark error red
         text=font.render(str(Solver[1]),True,(255,0,0))
@@ -180,15 +220,15 @@ def DrawBoard(Solver=-1):
         text=font.render(str(Solver[1]),True,(255,0,0))
         screen.blit(text,(int(float(SCREENSIZE[0])/9*((Solver[4])+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((Solver[2])+0.5)-text.get_height() / 2)))
     elif Solver[0]==4: #To few numbers entered
-        font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/12)     
+        font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/12)
         text= font2.render("You only entered "+str(Solver[1])+" numbers",True,(255,0,0))
         text2= font2.render("You need to enter at least 16!",True,(255,0,0))
         screen.blit(text,(SCREENSIZE[0]/2 -text.get_width() / 2, SCREENSIZE[1]/2 - text.get_height()))
         screen.blit(text2,(SCREENSIZE[0]/2 -text2.get_width() / 2, SCREENSIZE[1]/2 + text2.get_height()/2))
-        
-        
+
+
     pygame.display.flip()
-    
+
 def DrawSolvedBoard(Board):
     screen.fill(BACKGROUNDCOLOR)
     #Color the selected field
@@ -199,13 +239,13 @@ def DrawSolvedBoard(Board):
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]),3)
             pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[0])/9*(x+1)),3)
         else:
-        
+
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]))
             pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[0])/9*(x+1)))
-            
+
     if Board==-1: #We could not solve the board
-    
-        font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/8)     
+
+        font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/8)
         text= font2.render("Could not Solve",True,(255,0,0))
         screen.blit(text,(SCREENSIZE[0]/2 -text.get_width() / 2, SCREENSIZE[1]/2 - text.get_height() /2))
     else:
@@ -220,9 +260,9 @@ def DrawSolvedBoard(Board):
             #Draw
             screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_height() / 2)))
     pygame.display.flip()
-                
-            
-    
+
+
+
 pygame.init()
 screen=pygame.display.set_mode(SCREENSIZE,0,32)
 font = pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/12)
@@ -238,7 +278,7 @@ while 1:
     for event in pygame.event.get():
         if event.type==QUIT:
             exit()
-            
+
         elif event.type==KEYDOWN:
             if event.key==K_1:
                 BoardNumbers[SelectedField[0]][SelectedField[1]]=1
@@ -270,23 +310,23 @@ while 1:
                     for j in range(9):
                         numbers.append(BoardNumbers[i][j])
                 enteredNumbers=81-numbers.count("")
-                if enteredNumbers<=15:
+                if enteredNumbers<=-1:
                     Ready=(4,enteredNumbers)
                 #print Ready #debug
-                DrawBoard(Ready)    
+                DrawBoard(Ready)
                 Enterpressed=1
                 if Ready==0:
                     #print SolveBoard()
-                   Calcullations=0
                    SolvedBoard=SolveBoard()
-                   DrawSolvedBoard(SolvedBoard) 
+                   DrawSolvedBoard(SolvedBoard)
+                   #print SolvedBoard
                    print  SolvedBoard[-1]
-                    
+
             if Enterpressed==0:
                 DrawBoard()
             Enterpressed=0
-            
-                
+
+
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button==1:
 
@@ -294,8 +334,8 @@ while 1:
                 #print ("Field number="+str(int(float(event.pos[0])/SCREENSIZE[0]*9))+","+str(int(float(event.pos[1])/SCREENSIZE[1]*9))) #debug
                 SelectedField=(int(float(event.pos[0])/SCREENSIZE[0]*9),int(float(event.pos[1])/SCREENSIZE[1]*9))
                 DrawBoard()
-            
+
     clock.tick(60)
     #DrawBoard()
-            
-    
+
+
