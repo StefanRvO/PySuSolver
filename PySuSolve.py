@@ -87,6 +87,70 @@ def FillPossible(Board):
                 Board[i][0]=""
     return Board
 
+def FillEasy(Board):
+    #Fills easy calculated cells.
+    #e.g. if a cell in a block is the only one to have a specific candidate, it must be the one to get that value
+    #Blocks:
+    Filled=0
+    for x in xrange(3):
+        for y in xrange(3):
+            for z in range(1,10):
+                CellList=[]
+                for i in range(3):
+                    for j in range (3):
+                        try:
+                            if Board[(3*x+i)*9+(3*y+j)][3].count(z)==1: #this cell contains this candidate value
+                                CellList.append((3*x+i)*9+(3*y+j))
+                        except AttributeError:
+                            pass
+                if len(CellList)==1:
+                    Board[CellList[0]][3]=0
+                    Board[CellList[0]][0]=z
+                    Filled=1
+    
+    #Rows
+    for x in xrange(9):
+        for z in range(1,10):
+            CellList=[]
+            for y in range(9):
+                try:
+                    if Board[x*9+y][3].count(z)==1:
+                        CellList.append(x*9+y)
+                except AttributeError:
+                    pass
+                    
+            if len(CellList)==1:
+                Board[CellList[0]][3]=0
+                Board[CellList[0]][0]=z
+                Filled=1
+
+    #Collumns
+    for y in xrange(9):
+        for z in range(1,10):
+            CellList=[]
+            for y in range(9):
+                try:
+                    if Board[x*9+y][3].count(z)==1:
+                        CellList.append(x*9+y)
+                except AttributeError:
+                    pass
+                    
+            if len(CellList)==1:
+                Board[CellList[0]][3]=0
+                Board[CellList[0]][0]=z
+                Filled=1
+    return Filled
+                            
+                        
+            
+def CheckEmptyList(Board):
+    for i in range(81):
+        if Board[i][1]==1:
+            pass
+        else:
+            if Board[i][3]==[]:
+                return -1
+    return 0
 
 
 
@@ -124,7 +188,13 @@ def SolveBoard():
 
 
     #Now we make a loop.
-    FillPossible(SolvingBoard)
+    while True:
+        FillPossible(SolvingBoard)
+        if (FillEasy(SolvingBoard))==0:
+            break
+    if (CheckEmptyList(SolvingBoard)==-1):
+        return -1
+        
     Jumps=0
     ForceIncrement=0
     print "solving"
@@ -144,6 +214,8 @@ def SolveBoard():
                 #this //should// only happen when the board is solved
                 SolvingBoard.append(Jumps)
                 return SolvingBoard
+        print SolvingBoard[CurrentCell]
+        print CurrentCell
         SolvingBoard[CurrentCell][0]=SolvingBoard[CurrentCell][3][0]
         SolvingBoard[CurrentCell][2]=0
         while True :
@@ -200,7 +272,7 @@ def DrawBoard(Solver=-1):
             #print int(float(SCREENSIZE[0])/9*(y+0.5)-text.get_height() / 2)
     if Solver==-1:
         #do Nothing
-        pygame.time.wait(0)
+        pass
     elif Solver==0:
         font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/8)
         text= font2.render("Solving the Board..",True,(0,0,255))
@@ -266,7 +338,7 @@ def DrawSolvedBoard(Board):
 pygame.init()
 screen=pygame.display.set_mode(SCREENSIZE,0,32)
 font = pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/12)
-SelectedField=(0,0)
+SelectedField=[0,0]
 BoardNumbers=[[""]*9 for i in range(9)]
 DrawBoard()
 Enterpressed=0
@@ -300,6 +372,26 @@ while 1:
                 BoardNumbers[SelectedField[0]][SelectedField[1]]=9
             elif event.key==K_DELETE:
                 BoardNumbers[SelectedField[0]][SelectedField[1]]=""
+            elif event.key==K_UP:
+                if not SelectedField[1]==0:
+                    SelectedField[1]-=1
+                else:
+                    SelectedField[1]=8
+            elif event.key==K_DOWN:
+                if not SelectedField[1]==8:
+                    SelectedField[1]+=1
+                else:
+                    SelectedField[1]=0
+            elif event.key==K_LEFT:
+                if not SelectedField[0]==0:
+                    SelectedField[0]-=1
+                else:
+                    SelectedField[0]=8
+            elif event.key==K_RIGHT:
+                if not SelectedField[0]==8:
+                    SelectedField[0]+=1
+                else:
+                    SelectedField[0]=0
             elif event.key==K_c: #This clears the board
                 BoardNumbers=[[""]*9 for i in range(9)]
             elif event.key==K_RETURN:
@@ -320,7 +412,8 @@ while 1:
                    SolvedBoard=SolveBoard()
                    DrawSolvedBoard(SolvedBoard)
                    #print SolvedBoard
-                   print  SolvedBoard[-1]
+                   if not SolvedBoard==-1:                  
+                       print  SolvedBoard[-1]
 
             if Enterpressed==0:
                 DrawBoard()
@@ -332,7 +425,7 @@ while 1:
 
                 #print event.pos #debug
                 #print ("Field number="+str(int(float(event.pos[0])/SCREENSIZE[0]*9))+","+str(int(float(event.pos[1])/SCREENSIZE[1]*9))) #debug
-                SelectedField=(int(float(event.pos[0])/SCREENSIZE[0]*9),int(float(event.pos[1])/SCREENSIZE[1]*9))
+                SelectedField=[int(float(event.pos[0])/SCREENSIZE[0]*9),int(float(event.pos[1])/SCREENSIZE[1]*9)]
                 DrawBoard()
 
     clock.tick(60)
