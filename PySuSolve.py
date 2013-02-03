@@ -103,7 +103,7 @@ def FillEasy(Board):
                                 CellList.append((3*x+i)*9+(3*y+j))
                         except AttributeError:
                             pass
-                if len(CellList)==1:
+                if len(CellList)==1:-
                     Board[CellList[0]][3]=0
                     Board[CellList[0]][0]=z
                     Filled=1
@@ -139,7 +139,8 @@ def FillEasy(Board):
                 Board[CellList[0]][3]=0
                 Board[CellList[0]][0]=z
                 Filled=1
-    return Filled
+    Board.append(Filled)
+    return Board
                             
                         
             
@@ -149,8 +150,8 @@ def CheckEmptyList(Board):
             pass
         else:
             if Board[i][3]==[]:
-                return -1
-    return 0
+                return (-1,i)
+    return (0,0)
 
 
 
@@ -189,10 +190,16 @@ def SolveBoard():
 
     #Now we make a loop.
     while True:
-        FillPossible(SolvingBoard)
-        if (FillEasy(SolvingBoard))==0:
+        SolvingBoard=FillPossible(SolvingBoard)
+        TempBoard=FillEasy(SolvingBoard)
+        SolvingBoard=TempBoard[:-1]
+        if TempBoard[-1]==0:
             break
-    if (CheckEmptyList(SolvingBoard)==-1):
+   
+    Empty=CheckEmptyList(SolvingBoard)
+    if Empty[0]==-1:
+        print SolvingBoard
+        print Empty[1]
         return -1
         
     Jumps=0
@@ -214,17 +221,18 @@ def SolveBoard():
                 #this //should// only happen when the board is solved
                 SolvingBoard.append(Jumps)
                 return SolvingBoard
-        print SolvingBoard[CurrentCell]
-        print CurrentCell
+        #print SolvingBoard[CurrentCell]
+        #print CurrentCell
         SolvingBoard[CurrentCell][0]=SolvingBoard[CurrentCell][3][0]
         SolvingBoard[CurrentCell][2]=0
         while True :
             if ForceIncrement:
                 SolvingBoard[CurrentCell][2]+=1
                 ForceIncrement=0
+                print SolvingBoard
                 if not SolvingBoard[CurrentCell][2]+1>len(SolvingBoard[CurrentCell][3]):
                     SolvingBoard[CurrentCell][0]=SolvingBoard[CurrentCell][3][SolvingBoard[CurrentCell][2]]
-                    
+            print SolvingBoard        
             if CheckMissplacements(SolvingBoard,1)==-1 or SolvingBoard[CurrentCell][2]+1>len(SolvingBoard[CurrentCell][3]):
                 SolvingBoard[CurrentCell][2]+=1
                 if not SolvingBoard[CurrentCell][2]+1>len(SolvingBoard[CurrentCell][3]):
