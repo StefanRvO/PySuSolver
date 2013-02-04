@@ -67,92 +67,105 @@ def CheckMissplacements(Board,Solver=0):
     return 0
 
 def FillPossible(Board):
+    #Fill in naked singles and makes a list of possible values for each cell
+    Possible=[""]*81
+    Changed=0
     Check=1
     while Check==1:
         Check=0
         for i in range(81):
-            if Board[i][1]==1 or Board[i][3]==0:
-                continue
+            if Board[i][1]==1:
+                Possible[i]=[Board[i][0]]
             else:
-                Board[i][3]=[]
-            for j in range(1,10):
-                Board[i][0]=j
-                if not CheckMissplacements(Board,1)==-1:
-                    Board[i][3].append(j)
-            if len(Board[i][3])==1:
-                Board[i][0]=Board[i][3][0]
-                Board[i][3]=0
-                Check=1
-            else:
-                Board[i][0]=""
-    return Board
+                Possible[i]=[]
+                for j in range(1,10):
+                    Board[i][0]=j
+                    if not CheckMissplacements(Board,1)==-1:
+                        Possible[i].append(j)
+                if len(Possible[i])==1:
+                    Board[i][0]=Possible[i][0]
+                    Board[i][1]=1
+                    Check=1
+                    Changed=1
+                else:
+                    Board[i][0]=""
+    return (Possible,Changed)
 
-def FillEasy(Board):
-    #Fills easy calculated cells.
-    #e.g. if a cell in a block is the only one to have a specific candidate, it must be the one to get that value
+def CrossCheck(Possible,Board):
+    #Check each row, collumn and block, and if a number only is candidate in one cell, it means that it must be that cell
     #Blocks:
-    Filled=0
-    for x in xrange(3):
-        for y in xrange(3):
-            for z in range(1,10):
-                CellList=[]
+    Changed=0
+    for x in range(3):
+        for y in range(3):
+            for num in range(1,10): #check each number in this block
+                cellList=[]
                 for i in range(3):
-                    for j in range (3):
-                        try:
-                            if Board[(3*x+i)*9+(3*y+j)][3].count(z)==1: #this cell contains this candidate value
-                                CellList.append((3*x+i)*9+(3*y+j))
-                        except AttributeError:
-                            pass
-                if len(CellList)==1:-
-                    Board[CellList[0]][3]=0
-                    Board[CellList[0]][0]=z
-                    Filled=1
-    
-    #Rows
-    for x in xrange(9):
-        for z in range(1,10):
-            CellList=[]
+                    for j in range(3):
+                        if Possible[(3*x+i)*9+(3*y+j)].count(num)==1:
+                            cellList.append((3*x+i)*9+(3*y+j))
+                if len(cellList)==1:
+                    if Board[cellList[0]][0]=="":
+                        Board[cellList[0]][0]=num
+                        Board[cellList[0]][1]=1
+                        Changed=1
+                        #print "blok, num :"+str(num)+" celle "+str(cellList[0])
+    #rows
+    for x in range(9):
+        for num in range(1,10):
+            cellList=[]
             for y in range(9):
-                try:
-                    if Board[x*9+y][3].count(z)==1:
-                        CellList.append(x*9+y)
-                except AttributeError:
-                    pass
-                    
-            if len(CellList)==1:
-                Board[CellList[0]][3]=0
-                Board[CellList[0]][0]=z
-                Filled=1
-
+                if Possible[x*9+y].count(num)==1:
+                    cellList.append(x*9+y)
+            if len(cellList)==1:
+                if Board[cellList[0]][0]=="":
+                    Board[cellList[0]][0]=num
+                    Board[cellList[0]][1]=1
+                    Changed=1
+                    #print "raekke, num :"+str(num)+" celle"+str(cellList[0])
     #Collumns
-    for y in xrange(9):
-        for z in range(1,10):
-            CellList=[]
-            for y in range(9):
-                try:
-                    if Board[x*9+y][3].count(z)==1:
-                        CellList.append(x*9+y)
-                except AttributeError:
-                    pass
+    for y in range(9):
+        for num in range(1,10):
+            cellList=[]
+            for x in range(9):
+                if Possible[x*9+y].count(num)==1:
+                    cellList.append(x*9+y)
+            if len(cellList)==1:
+                if Board[cellList[0]][0]=="":
+                    Board[cellList[0]][0]=num
+                    Board[cellList[0]][1]=1
+                    Changed=1
+                    #print "kollone, num :"+str(num)+" celle"+str(cellList[0])
+    return (Board,Changed) 
+        
                     
-            if len(CellList)==1:
-                Board[CellList[0]][3]=0
-                Board[CellList[0]][0]=z
-                Filled=1
-    Board.append(Filled)
-    return Board
                             
                         
             
-def CheckEmptyList(Board):
-    for i in range(81):
-        if Board[i][1]==1:
-            pass
-        else:
-            if Board[i][3]==[]:
-                return (-1,i)
-    return (0,0)
-
+def PrepareBoard(Board):
+    while True:
+        while True:
+            possible=FillPossible(Board)
+            #SolvingBoard=possible[0]
+            PossibleList=possible[0]
+            checker=CrossCheck(PossibleList,Board)
+            #SolvingBoard=checker[0]
+            print "naked : "+str(possible[1])
+            print "CrossCheck: "+str(checker[1])
+            
+            if not (checker[1]==1 or possible[1]==1):
+                break
+        #FindHiddenPairsTrippleQuads(PossibleList) # not done yet (hard)
+        #FindNakedPairsTrippleQuads(PossibleList) # not done yet (hard)
+        #Single=FindSingle(PossibleList, Board) #not done yet (easy)
+        #checker=CrossCheck(PossibleList,Board) #Done, but shouldn't run yet untill other are implented
+        #if not(checker[1]==1 or Single==1):
+        break
+    
+    print PossibleList
+    print ""
+    print Board
+    return(Board,PossibleList)
+    
 
 
 
@@ -168,9 +181,9 @@ def SolveBoard():
     for i in range(9):
         for j in range(9):
             if not BoardNumbers[i][j]=="":
-                SolvingBoard[i*9+j]=[BoardNumbers[i][j],1,0,[]]
+                SolvingBoard[i*9+j]=[BoardNumbers[i][j],1,0]
             else:
-                SolvingBoard[i*9+j]=["",0,0,[]]
+                SolvingBoard[i*9+j]=["",0,0]
 
 
 #We have now copied in the entered board. Solvingboard is now of a list of list.
@@ -179,77 +192,65 @@ def SolveBoard():
 #[1] Contains either the numbers 0 or 1
 #0 means we should not edit this cell. These are the cells entered by the user, 0 means we are alowed to edit the cell
 #We have also reformated it a bit. It is now one-dimensional. This makes things a bit easier later on.
-#[3] Contains a list
-#The list contains the number of possible values for the field
-#We should first fill the tuples.
-#This is done with FillPossible()
-#[2] contains the number in the list which is currently active
-
+#[2] contains the candidate which is currently active
+    #We prepare for bruteforce.
+    #We find some easy cells and make a list of candidates for each cell
+    Temp=PrepareBoard(SolvingBoard)
+    PossibleList=Temp[1]
+    SolvingBoard=Temp[0] 
+    
+    #brute force part
+    #Here we use brute force to solve for the remaining cells.
+    
+    
 
 
 
     #Now we make a loop.
-    while True:
-        SolvingBoard=FillPossible(SolvingBoard)
-        TempBoard=FillEasy(SolvingBoard)
-        SolvingBoard=TempBoard[:-1]
-        if TempBoard[-1]==0:
-            break
-   
-    Empty=CheckEmptyList(SolvingBoard)
-    if Empty[0]==-1:
-        print SolvingBoard
-        print Empty[1]
-        return -1
-        
-    Jumps=0
-    ForceIncrement=0
-    print "solving"
     CurrentCell=-1
+    BackStepped=0
+    LastNotValid=0
+    Jumps=0
     while True:
-        CurrentCell+=1
-        Jumps+=1
         #print SolvingBoard
-        #print CurrentCell
-        if CurrentCell>80:
-           #this //should// only happen when the board is solved
-            SolvingBoard.append(Jumps)
-            return SolvingBoard
-        while SolvingBoard[CurrentCell][1]==1 or SolvingBoard[CurrentCell][3]==0:
+        Jumps+=1
+        while True: #add 1 to currentcell, and keep doing to we come to a uncertain cell
             CurrentCell+=1
             if CurrentCell>80:
-                #this //should// only happen when the board is solved
+                #return, the board is now solved
+                #print SolvingBoard
                 SolvingBoard.append(Jumps)
                 return SolvingBoard
-        #print SolvingBoard[CurrentCell]
-        #print CurrentCell
-        SolvingBoard[CurrentCell][0]=SolvingBoard[CurrentCell][3][0]
+                
+            if SolvingBoard[CurrentCell][1]==0: #break incrementing loop if we reach an unsolved cell
+                break
         SolvingBoard[CurrentCell][2]=0
-        while True :
-            if ForceIncrement:
-                SolvingBoard[CurrentCell][2]+=1
-                ForceIncrement=0
-                print SolvingBoard
-                if not SolvingBoard[CurrentCell][2]+1>len(SolvingBoard[CurrentCell][3]):
-                    SolvingBoard[CurrentCell][0]=SolvingBoard[CurrentCell][3][SolvingBoard[CurrentCell][2]]
-            print SolvingBoard        
-            if CheckMissplacements(SolvingBoard,1)==-1 or SolvingBoard[CurrentCell][2]+1>len(SolvingBoard[CurrentCell][3]):
-                SolvingBoard[CurrentCell][2]+=1
-                if not SolvingBoard[CurrentCell][2]+1>len(SolvingBoard[CurrentCell][3]):
-                    SolvingBoard[CurrentCell][0]=SolvingBoard[CurrentCell][3][SolvingBoard[CurrentCell][2]]
+        SolvingBoard[CurrentCell][0]=PossibleList[CurrentCell][SolvingBoard[CurrentCell][2]]
+        while True:
+            if BackStepped: #we have just stepped a cell back. try the next candidate for the cell
+                BackStepped=0
+                if not SolvingBoard[CurrentCell][0]==PossibleList[CurrentCell][-1]: #check if we are at last candidate
+                    SolvingBoard[CurrentCell][2]+=1
+                    SolvingBoard[CurrentCell][0]=PossibleList[CurrentCell][SolvingBoard[CurrentCell][2]]
                 else:
+                    LastNotValid=1
+            if CheckMissplacements(SolvingBoard,1)==-1 or LastNotValid: #if cell don't fit, or we tried this before, we try the next possible value for the cell
+                LastNotValid=0
+                SolvingBoard[CurrentCell][2]+=1
+                if not SolvingBoard[CurrentCell][2]+1 > len(PossibleList[CurrentCell]):
+                    SolvingBoard[CurrentCell][0]=PossibleList[CurrentCell][SolvingBoard[CurrentCell][2]]
+                else: #if we have tried all possibilities, go back to next unsolved cell
                     SolvingBoard[CurrentCell][0]=""
-                    SolvingBoard[CurrentCell][2]=0
                     while True:
                         CurrentCell-=1
-                        ForceIncrement=1
-                        if not SolvingBoard[CurrentCell][1]==1 or SolvingBoard[CurrentCell][3]==0:
-                            #print CurrentCell
-                            break
+                        BackStepped=1
                         if CurrentCell<0:
-                            return -1
-            else:
+                            return -1 #Board could not be solved
+                        if not SolvingBoard[CurrentCell][1]==1:
+                            break
+            else: #break if cell fits
                 break
+      
 
 
 
@@ -333,12 +334,14 @@ def DrawSolvedBoard(Board):
         #user-entered values should be black, solved values should be blue
         for i in range(81):
             #make the text
-            if Board[i][1]==0: #make blue
-                text=font.render(str(Board[i][0]),True,(0,0,255))
-            elif Board[i][1]==1: #Make black
-                text=font.render(str(Board[i][0]),True,(0,0,0))
+            text=font.render(str(Board[i][0]),True,(0,0,255)) #make blue
             #Draw
             screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_height() / 2)))
+            #Draw userentered numbers black
+        for x in range(9):
+            for y in range(9):
+                text=font.render(str(BoardNumbers[x][y]),True,PlacedTextColor)
+                screen.blit(text,(int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*(y+0.5)-text.get_height() / 2)))
     pygame.display.flip()
 
 
