@@ -135,11 +135,84 @@ def CrossCheck(Possible,Board):
                     Board[cellList[0]][1]=1
                     Changed=1
                     #print "kollone, num :"+str(num)+" celle"+str(cellList[0])
-    return (Board,Changed) 
-        
+    return (Board,Changed)
+
+def FindNakedSingles(PossibleList,Board):
+    Changed=0
+    for i in range(81):
+        if not Board[i][1]==1:
+            if len(PossibleList[i])==1: #We have found a naked single
+                Changed=1
+                Board[i][0]=PossibleList[i][0]
+                Board[i][1]=1
+    return Changed
                     
                             
+def FindNakedPairsTripplesQuads(PossibleList):
+    #If two cells in a group (row, collum, block) contains the same two candidates, these candidates can be removed from the rest of the cells in the group
+    #loop through all cells, searching for a cell with two candidates
+    for checking in range(2,5):
+        for i in range(81):
+            if len(PossibleList[i])==checking:
+                current=PossibleList[i]
+                #if we find one, search through block, row and collum for the same pair.
+                row=i%9
+                collumn=i/9
+                #search through row
+                cellList=[i]
+                for l in range(9):
+                    if not row+l*9==i:
+                        for candidate in PossibleList[row+l*9]:
+                            if not current.count(candidate):
+                                break
                         
+                        cellList.append(row+l*9)
+                       
+                if len(cellList)==checking: #we have found a naked pair/tripple/quad.
+                    for l in range(9):
+                        if not cellList.count(row+l*9)>0: #check if we should delete in this cell
+                            for candidate in current:
+                                if PossibleList[row+l*9].count(candidate)==1:
+                                    PossibleList[row+l*9].remove(candidate)
+                #search through collumn
+                cellList=[i]
+                for l in range(9):
+                    if not collumn*9+l==i:
+                        for candidate in PossibleList[collumn*9+l]:
+                            if not current.count(candidate):
+                                break
+                        cellList.append(collumn*9+l)
+                        
+                if len(cellList)==checking: #we have found a naked pair/tripple/quad.
+                    for l in range(9):
+                        if not cellList.count(collumn*9+l)>0: #check if we should delete in this cell
+                            for candidate in current:
+                                if PossibleList[collumn*9+l].count(candidate)==1:
+                                    PossibleList[collumn*9+l].remove(candidate)
+                #search through blocks
+                cellList=[i]
+                    #find out whick block we belongs to
+                blockX=collumn/3
+                blockY=row/3
+                for x in range(3):
+                    for y in range(3):
+                        if not (blockX*3+x)*9+(blockY*3+y)==i:
+                            for candidate in PossibleList[(blockX*3+x)*9+(blockY*3+y)]:
+                                if not current.count(candidate):
+                                    break
+                            cellList.append((blockX*3+x)*9+(blockY*3+y))
+                            
+                if len(cellList)==checking: #we have found a naked pair/tripple/quad.
+                    for x in range(3):
+                        for y in range(3):
+                            if not cellList.count((blockX*3+x)*9+(blockY*3+y))>0:
+                                for candidate in current:
+                                    if PossibleList[(blockX*3+x)*9+(blockY*3+y)].count(candidate)==1:
+                                        PossibleList[(blockX*3+x)*9+(blockY*3+y)].remove(candidate)                              
+    
+                            
+                    
+                    
             
 def PrepareBoard(Board):
     while True:
@@ -154,12 +227,17 @@ def PrepareBoard(Board):
             
             if not (checker[1]==1 or possible[1]==1):
                 break
-        #FindHiddenPairsTrippleQuads(PossibleList) # not done yet (hard)
-        #FindNakedPairsTrippleQuads(PossibleList) # not done yet (hard)
-        #Single=FindSingle(PossibleList, Board) #not done yet (easy)
-        #checker=CrossCheck(PossibleList,Board) #Done, but shouldn't run yet untill other are implented
-        #if not(checker[1]==1 or Single==1):
-        break
+
+        #FindNakedPairsTripplesQuads(PossibleList)
+        #FindNakedTripples(PossibleList)
+        #FindNakedQuads(PossibleList
+        #FindHiddenPairs(PossibleList)
+        #FindHiddenTrippels(PossibleList)
+        #FindHiddenQuads(PossibleList)
+        Single=FindNakedSingles(PossibleList,Board)
+        checker=CrossCheck(PossibleList,Board)
+        if not(checker[1]==1 or Single==1):
+            break
     
     print PossibleList
     print ""
