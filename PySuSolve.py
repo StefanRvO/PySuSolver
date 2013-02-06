@@ -162,11 +162,12 @@ def FindNakedPairsTripplesQuads(PossibleList):
                 cellList=[i]
                 for l in range(9):
                     if not row+l*9==i:
-                        for candidate in PossibleList[row+l*9]:
-                            if not current.count(candidate):
-                                break
-                        
-                        cellList.append(row+l*9)
+                        numbersfound=0
+                        for candidate in current:
+                            if PossibleList[row+l*9].count(candidate)>0:
+                                numbersfound+=1
+                        if numbersfound==len(PossibleList[row+l*9]):
+                            cellList.append(row+l*9)
                        
                 if len(cellList)==checking: #we have found a naked pair/tripple/quad.
                     for l in range(9):
@@ -178,10 +179,12 @@ def FindNakedPairsTripplesQuads(PossibleList):
                 cellList=[i]
                 for l in range(9):
                     if not collumn*9+l==i:
-                        for candidate in PossibleList[collumn*9+l]:
-                            if not current.count(candidate):
-                                break
-                        cellList.append(collumn*9+l)
+                        numbersfound=0
+                        for candidate in current:
+                            if PossibleList[collumn*9+l].count(candidate)>0:
+                                numbersfound+=1
+                        if numbersfound==len(PossibleList[collumn*9+l]):
+                            cellList.append(collumn*9+l)
                         
                 if len(cellList)==checking: #we have found a naked pair/tripple/quad.
                     for l in range(9):
@@ -197,10 +200,12 @@ def FindNakedPairsTripplesQuads(PossibleList):
                 for x in range(3):
                     for y in range(3):
                         if not (blockX*3+x)*9+(blockY*3+y)==i:
-                            for candidate in PossibleList[(blockX*3+x)*9+(blockY*3+y)]:
-                                if not current.count(candidate):
-                                    break
-                            cellList.append((blockX*3+x)*9+(blockY*3+y))
+                            numbersfound=0
+                            for candidate in current:
+                                if PossibleList[(blockX*3+x)*9+(blockY*3+y)].count(candidate)>0:
+                                    numbersfound+=1
+                            if numbersfound==len(PossibleList[(blockX*3+x)*9+(blockY*3+y)]):
+                                cellList.append((blockX*3+x)*9+(blockY*3+y))
                             
                 if len(cellList)==checking: #we have found a naked pair/tripple/quad.
                     for x in range(3):
@@ -228,7 +233,7 @@ def PrepareBoard(Board):
             if not (checker[1]==1 or possible[1]==1):
                 break
 
-        #FindNakedPairsTripplesQuads(PossibleList)
+        FindNakedPairsTripplesQuads(PossibleList)
         #FindNakedTripples(PossibleList)
         #FindNakedQuads(PossibleList
         #FindHiddenPairs(PossibleList)
