@@ -215,8 +215,82 @@ def FindNakedPairsTripplesQuads(PossibleList):
                                     if PossibleList[(blockX*3+x)*9+(blockY*3+y)].count(candidate)==1:
                                         PossibleList[(blockX*3+x)*9+(blockY*3+y)].remove(candidate)                              
     
+def FindHiddenPairs(PossibleList):
+    #This find cells in unit, where to cells are the only ones to contain two specific candidates
+    
+    #Find in collumns
+    for x in range(9):
+        numlist=[[],[]]
+        for num in range(1,10):
+            cellList=[]
+            for y in range(9):
+                if PossibleList[x*9+y].count(num)==1:
+                    cellList.append(x*9+y)
+            if len(cellList)==2:
+                numlist[1].append(cellList)
+                numlist[0].append(1)
+            else:
+                numlist[1].append("")
+                numlist[0].append(0)
+        for i in range(9):
+            if numlist[0][i]:
+                current=numlist[1][i]
+                for l in range(9):
+                    if numlist[1][l]==current and not l==i: #We found a hidden pair. These candidates are the only ones which share a pair
+                        PossibleList[numlist[1][i][0]]=[l+1,i+1]
+                        PossibleList[numlist[1][i][1]]=[l+1,i+1]
+    #find in rows 
+    for y in range(9):
+        numlist=[[],[]]
+        for num in range(1,10):
+            cellList=[]
+            for x in range(9):
+                if PossibleList[x*9+y].count(num)==1:
+                    cellList.append(x*9+y)
+            if len(cellList)==2:
+                numlist[1].append(cellList)
+                numlist[0].append(1)
+            else:
+                numlist[1].append("")
+                numlist[0].append(0)
+        for i in range(9):
+            if numlist[0][i]:
+                current=numlist[1][i]
+                for l in range(9):
+                    if numlist[1][l]==current and not l==i: #We found a hidden pair. These candidates are the only ones which share a pair
+                        PossibleList[numlist[1][i][0]]=[l+1,i+1]
+                        PossibleList[numlist[1][i][1]]=[l+1,i+1]
+    #Find in Blocks
+    for x in range(3):
+        for y in range(3):
+            numlist=[[],[]]
+            for num in range(1,10): #check each number in this block
+                cellList=[]
+                for i in range(3):
+                    for j in range(3):
+                        if PossibleList[(3*x+i)*9+(3*y+j)].count(num)==1:
+                            cellList.append((3*x+i)*9+(3*y+j))
+                if len(cellList)==2:
+                    numlist[1].append(cellList)
+                    numlist[0].append(1)
+                else:
+                    numlist[1].append("")
+                    numlist[0].append(0)
+            for i in range(9):
+                if numlist[0][i]:
+                    current=numlist[1][i]
+                    for l in range(9):
+                        if numlist[1][l]==current and not l==i: #We found a hidden pair. These candidates are the only ones which share a pair
+                            PossibleList[numlist[1][i][0]]=[l+1,i+1]
+                            PossibleList[numlist[1][i][1]]=[l+1,i+1]
+                           
                             
-                    
+def FindHiddenTripples(PossibleList):
+    pass
+
+
+def FindHiddenTripples(PossibleList):
+    pass
                     
             
 def PrepareBoard(Board):
@@ -234,8 +308,6 @@ def PrepareBoard(Board):
                 break
 
         FindNakedPairsTripplesQuads(PossibleList)
-        #FindNakedTripples(PossibleList)
-        #FindNakedQuads(PossibleList
         #FindHiddenPairs(PossibleList)
         #FindHiddenTrippels(PossibleList)
         #FindHiddenQuads(PossibleList)
@@ -243,13 +315,18 @@ def PrepareBoard(Board):
         checker=CrossCheck(PossibleList,Board)
         if not(checker[1]==1 or Single==1):
             break
-    
-    print PossibleList
+    for i in range(9):
+        print PossibleList[(i*9):((i+1)*9)]
     print ""
     print Board
     return(Board,PossibleList)
     
-
+def CheckFaultyBoard(PossibleList):
+    for candidates in PossibleList:
+        if len(candidates)==0:
+            return -1
+    
+    return 0
 
 
 
@@ -281,6 +358,8 @@ def SolveBoard():
     Temp=PrepareBoard(SolvingBoard)
     PossibleList=Temp[1]
     SolvingBoard=Temp[0] 
+    if (CheckFaultyBoard(PossibleList)==-1): #check if a cell have no candidate
+        return -1
     
     #brute force part
     #Here we use brute force to solve for the remaining cells.
@@ -496,8 +575,8 @@ while 1:
                     for j in range(9):
                         numbers.append(BoardNumbers[i][j])
                 enteredNumbers=81-numbers.count("")
-                if enteredNumbers<=-1:
-                    Ready=(4,enteredNumbers)
+                #if enteredNumbers<=-1:
+                #    Ready=(4,enteredNumbers)
                 #print Ready #debug
                 DrawBoard(Ready)
                 Enterpressed=1
