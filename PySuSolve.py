@@ -135,7 +135,7 @@ def FindHiddenSingles(Possible,Board):
                     Board[cellList[0]][1]=1
                     Changed=1
                     #print "kollone, num :"+str(num)+" celle"+str(cellList[0])
-    return (Board,Changed)
+    return Changed
 
 def FindNakedSingles(PossibleList,Board):
     Changed=0
@@ -151,6 +151,7 @@ def FindNakedSingles(PossibleList,Board):
 def FindNakedPairsTripplesQuads(PossibleList):
     #If two cells in a group (row, collum, block) contains the same two candidates, these candidates can be removed from the rest of the cells in the group
     #loop through all cells, searching for a cell with two candidates
+    Changed=0
     for checking in range(2,5):
         for i in range(81):
             if len(PossibleList[i])==checking:
@@ -175,6 +176,7 @@ def FindNakedPairsTripplesQuads(PossibleList):
                             for candidate in current:
                                 if PossibleList[row+l*9].count(candidate)==1:
                                     PossibleList[row+l*9].remove(candidate)
+                                    Changed=1
                 #search through collumn
                 cellList=[i]
                 for l in range(9):
@@ -192,6 +194,7 @@ def FindNakedPairsTripplesQuads(PossibleList):
                             for candidate in current:
                                 if PossibleList[collumn*9+l].count(candidate)==1:
                                     PossibleList[collumn*9+l].remove(candidate)
+                                    Changed=1
                 #search through blocks
                 cellList=[i]
                     #find out whick block we belongs to
@@ -213,11 +216,13 @@ def FindNakedPairsTripplesQuads(PossibleList):
                             if not cellList.count((blockX*3+x)*9+(blockY*3+y))>0:
                                 for candidate in current:
                                     if PossibleList[(blockX*3+x)*9+(blockY*3+y)].count(candidate)==1:
-                                        PossibleList[(blockX*3+x)*9+(blockY*3+y)].remove(candidate)                              
+                                        PossibleList[(blockX*3+x)*9+(blockY*3+y)].remove(candidate)
+                                        Changed=1
+    return Changed                              
     
 def FindHiddenPairs(PossibleList):
     #This find cells in unit, where to cells are the only ones to contain two specific candidates
-    
+    Changed=0
     #Find in collumns
     for x in range(9):
         numlist=[[],[]]
@@ -237,8 +242,10 @@ def FindHiddenPairs(PossibleList):
                 current=numlist[1][i]
                 for l in range(9):
                     if numlist[1][l]==current and not l==i: #We found a hidden pair. These candidates are the only ones which share a pair
-                        PossibleList[numlist[1][i][0]]=[l+1,i+1]
-                        PossibleList[numlist[1][i][1]]=[l+1,i+1]
+                        if not (PossibleList[numlist[1][i][0]]==[l+1,i+1] and PossibleList[numlist[1][i][1]]==[l+1,i+1]):
+                            PossibleList[numlist[1][i][0]]=[l+1,i+1]
+                            PossibleList[numlist[1][i][1]]=[l+1,i+1]
+                            Changed=1
     #find in rows 
     for y in range(9):
         numlist=[[],[]]
@@ -258,8 +265,10 @@ def FindHiddenPairs(PossibleList):
                 current=numlist[1][i]
                 for l in range(9):
                     if numlist[1][l]==current and not l==i: #We found a hidden pair. These candidates are the only ones which share a pair
-                        PossibleList[numlist[1][i][0]]=[l+1,i+1]
-                        PossibleList[numlist[1][i][1]]=[l+1,i+1]
+                        if not (PossibleList[numlist[1][i][0]]==[l+1,i+1] and PossibleList[numlist[1][i][1]]==[l+1,i+1]):
+                            PossibleList[numlist[1][i][0]]=[l+1,i+1]
+                            PossibleList[numlist[1][i][1]]=[l+1,i+1]
+                            Changed=1
     #Find in Blocks
     for x in range(3):
         for y in range(3):
@@ -281,8 +290,11 @@ def FindHiddenPairs(PossibleList):
                     current=numlist[1][i]
                     for l in range(9):
                         if numlist[1][l]==current and not l==i: #We found a hidden pair. These candidates are the only ones which share a pair
-                            PossibleList[numlist[1][i][0]]=[l+1,i+1]
-                            PossibleList[numlist[1][i][1]]=[l+1,i+1]
+                            if not (PossibleList[numlist[1][i][0]]==[l+1,i+1] and PossibleList[numlist[1][i][1]]==[l+1,i+1]):
+                                PossibleList[numlist[1][i][0]]=[l+1,i+1]
+                                PossibleList[numlist[1][i][1]]=[l+1,i+1]
+                                Changed=1
+    return Changed
                            
                             
 def FindHiddenTrippels(PossibleList):
@@ -296,6 +308,7 @@ def FindHiddenQuads(PossibleList):
 def FindPointingPairs(PossibleList):
     #If a candidate value inside a box only exists in one row or collumn, it can be removed from the same row or collumn in other boxes.
     #Not currently working
+    Changed=0
     for x in range(3):
         for y in range(3):
             for num in range(1,10):
@@ -317,42 +330,75 @@ def FindPointingPairs(PossibleList):
                         if not cell[1]==collumn:
                             SameCollumn=0
                     if SameRow: #if the candidate only exist in the same row, delete candidate in the rest of the row
-                        for k in range(9):
-                            if not k/3==x:
-                                if PossibleList[row*9+k].count(num)==1:
-                                    PossibleList[row*9+k].remove(num)
-                    elif SameCollumn:
-                        for k in range(9):
-                            if not k/3==y:
-                                if PossibleList[k*9+collumn].count(num)==1:
-                                    PossibleList[k*9+collumn].remove(num)
+                        #Get coullmns we shouldn't delete in
+                        skipThese=[]
+                        for cell in CellList:
+                            skipThese.append(cell[1])
+                        #Delete in all others
+                        for thiscollumn in range(9):
+                            if not skipThese.count(thiscollumn)==1:
+                                if PossibleList[row*9+thiscollumn].count(num)==1:
+                                    PossibleList[row*9+thiscollumn].remove(num)
+                                    Changed=1
+                        #print "Pointing Pair at:"
+                        #for cell in CellList:
+                        #    print cell
+                        #print "Nummer="+str(num)
+                    elif SameCollumn: #if the candidate only exist in the same row, delete candidate in the rest of the row
+                        skipThese=[]
+                        for cell in CellList:
+                            skipThese.append(cell[0])
+                        #Delete in all others
+                        for thisrow in range(9):
+                            if not skipThese.count(thisrow)==1:
+                                if PossibleList[thisrow*9+collumn].count(num)==1:
+                                    PossibleList[thisrow*9+collumn].remove(num)
+                                    Changed=1
+                        #print "Pointing Pair at:"
+                        #for cell in CellList:
+                        #    print cell
+                        #print "Nummer="+str(num)
+    return Changed
                          
                         
             
 def PrepareBoard(Board):
+    possible=FillPossible(Board)
+    PossibleList=possible[0]
     while True:
         while True:
-            possible=FillPossible(Board)
-            #SolvingBoard=possible[0]
-            PossibleList=possible[0]
-            checker=FindHiddenSingles(PossibleList,Board)
+            naked=FindNakedSingles(PossibleList,Board)
+            hidden=FindHiddenSingles(PossibleList,Board)
             #SolvingBoard=checker[0]
-            print "naked : "+str(possible[1])
-            print "CrossCheck: "+str(checker[1])
+            print "naked : "+str(naked)
+            print "CrossCheck: "+str(hidden)
             
-            if not (checker[1]==1 or possible[1]==1):
+            if not (hidden==1 or naked==1):
                 break
-
-        FindNakedPairsTripplesQuads(PossibleList)
-        FindHiddenPairs(PossibleList)
-        FindPointingPairs(PossibleList) #Partly Implemented. Buggy. Needs fixing
-        break
-        FindHiddenTrippels(PossibleList) #Not implemented, does nothing
-        FindHiddenQuads(PossibleList) #Not implemented, does nothing
+            else:
+                    possible=FillPossible(Board)
+                    PossibleList=possible[0]
+        while True:
+            TempPossibleList=PossibleList[:]
+            NakedGroups=FindNakedPairsTripplesQuads(PossibleList)
+            HiddenPairs=FindHiddenPairs(PossibleList)
+            HiddenPairs=0 #Workaround for buggy change detection, should be fixed
+            PointingPairs=FindPointingPairs(PossibleList) #Should Be Working
+            FindHiddenTrippels(PossibleList) #Not implemented, does nothing
+            FindHiddenQuads(PossibleList) #Not implemented, does nothing
+            print "NakedGroups :"+str(NakedGroups)
+            print "HiddenPairs :"+str(HiddenPairs)
+            print "PointingPairs :"+str(PointingPairs)
+            if not (NakedGroups==1 or HiddenPairs==1 or PointingPairs==1):
+                break
         naked=FindNakedSingles(PossibleList,Board)
         hidden=FindHiddenSingles(PossibleList,Board)
-        if not(hidden[1]==1 or naked==1):
+        if not(hidden==1 or naked==1):
             break
+        else:
+                possible=FillPossible(Board)
+                PossibleList=possible[0]
+        
             
     for i in range(9):
         print PossibleList[(i*9):((i+1)*9)]
@@ -632,15 +678,16 @@ while 1:
                     file=open('seedfile','r')
                 except IOError:
                     break #File does not exist
+                BoardNumbers=[[""]*9 for i in range(9)]
                 current=0
                 while True:
                     thischar=file.read(1)
                     if thischar=="" or current>80:
                         break   #Break if we reach end of file
-                    if thischar in ('1','2','3','4','5','6','7','8','9','.'):
+                    if thischar in ('0','1','2','3','4','5','6','7','8','9','.'):
                         row=current%9
                         collumn=current/9
-                        if not thischar=='.':
+                        if not thischar in ('.','0'):
                             BoardNumbers[row][collumn]=int(thischar)
                         else:
                             BoardNumbers[row][collumn]=""
