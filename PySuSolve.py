@@ -91,7 +91,7 @@ def FillPossible(Board):
                     Board[i][0]=""
     return (Possible,Changed)
 
-def CrossCheck(Possible,Board):
+def FindHiddenSingles(Possible,Board):
     #Check each row, collumn and block, and if a number only is candidate in one cell, it means that it must be that cell
     #Blocks:
     Changed=0
@@ -285,13 +285,49 @@ def FindHiddenPairs(PossibleList):
                             PossibleList[numlist[1][i][1]]=[l+1,i+1]
                            
                             
-def FindHiddenTripples(PossibleList):
+def FindHiddenTrippels(PossibleList):
     pass
+    #May Be implemented in the future
 
 
-def FindHiddenTripples(PossibleList):
+def FindHiddenQuads(PossibleList):
     pass
+    #May Be Implemented in the future
+def FindPointingPairs(PossibleList):
+    #If a candidate value inside a box only exists in one row or collumn, it can be removed from the same row or collumn in other boxes.
+    #Not currently working
+    for x in range(3):
+        for y in range(3):
+            for num in range(1,10):
+                CellList=[]
+                for i in range(3):
+                    for j in range(3):
+                        if PossibleList[(3*x+i)*9+(3*y+j)].count(num)==1:
+                            CellList.append((3*x+i,3*y+j))
+                if len(CellList)==3 or len(CellList)==2:
+                    #Check if number exist only in the same row or collumn
+                    SameRow=1
+                    SameCollumn=1
+                    row=CellList[0][0]
+                    collumn=CellList[0][1]
                     
+                    for cell in CellList[1:]:
+                        if not cell[0]==row:
+                            SameRow=0
+                        if not cell[1]==collumn:
+                            SameCollumn=0
+                    if SameRow: #if the candidate only exist in the same row, delete candidate in the rest of the row
+                        for k in range(9):
+                            if not k/3==x:
+                                if PossibleList[row*9+k].count(num)==1:
+                                    PossibleList[row*9+k].remove(num)
+                    elif SameCollumn:
+                        for k in range(9):
+                            if not k/3==y:
+                                if PossibleList[k*9+collumn].count(num)==1:
+                                    PossibleList[k*9+collumn].remove(num)
+                         
+                        
             
 def PrepareBoard(Board):
     while True:
@@ -299,7 +335,7 @@ def PrepareBoard(Board):
             possible=FillPossible(Board)
             #SolvingBoard=possible[0]
             PossibleList=possible[0]
-            checker=CrossCheck(PossibleList,Board)
+            checker=FindHiddenSingles(PossibleList,Board)
             #SolvingBoard=checker[0]
             print "naked : "+str(possible[1])
             print "CrossCheck: "+str(checker[1])
@@ -308,15 +344,19 @@ def PrepareBoard(Board):
                 break
 
         FindNakedPairsTripplesQuads(PossibleList)
-        #FindHiddenPairs(PossibleList)
-        #FindHiddenTrippels(PossibleList)
-        #FindHiddenQuads(PossibleList)
-        Single=FindNakedSingles(PossibleList,Board)
-        checker=CrossCheck(PossibleList,Board)
-        if not(checker[1]==1 or Single==1):
+        FindHiddenPairs(PossibleList)
+        FindPointingPairs(PossibleList) #Partly Implemented. Buggy. Needs fixing
+        break
+        FindHiddenTrippels(PossibleList) #Not implemented, does nothing
+        FindHiddenQuads(PossibleList) #Not implemented, does nothing
+        naked=FindNakedSingles(PossibleList,Board)
+        hidden=FindHiddenSingles(PossibleList,Board)
+        if not(hidden[1]==1 or naked==1):
             break
+            
     for i in range(9):
         print PossibleList[(i*9):((i+1)*9)]
+        
     print ""
     print Board
     return(Board,PossibleList)
@@ -587,6 +627,29 @@ while 1:
                    #print SolvedBoard
                    if not SolvedBoard==-1:                  
                        print  SolvedBoard[-1]
+            elif event.key==K_l: #Load from a seed file
+                try:
+                    file=open('seedfile','r')
+                except IOError:
+                    break #File does not exist
+                current=0
+                while True:
+                    thischar=file.read(1)
+                    if thischar=="" or current>80:
+                        break   #Break if we reach end of file
+                    if thischar in ('1','2','3','4','5','6','7','8','9','.'):
+                        row=current%9
+                        collumn=current/9
+                        if not thischar=='.':
+                            BoardNumbers[row][collumn]=int(thischar)
+                        else:
+                            BoardNumbers[row][collumn]=""
+                        current+=1
+                       
+                            
+                        
+                        
+                    
 
             if Enterpressed==0:
                 DrawBoard()
@@ -602,6 +665,5 @@ while 1:
                 DrawBoard()
 
     clock.tick(60)
-    #DrawBoard()
 
 
