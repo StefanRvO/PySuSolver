@@ -369,6 +369,7 @@ def PrepareBoard(Board):
         while True:
             naked=FindNakedSingles(PossibleList,Board)
             hidden=FindHiddenSingles(PossibleList,Board)
+            DrawSolvingBoard(PossibleList)
             #SolvingBoard=checker[0]
             print "naked : "+str(naked)
             print "CrossCheck: "+str(hidden)
@@ -393,6 +394,7 @@ def PrepareBoard(Board):
                 break
         naked=FindNakedSingles(PossibleList,Board)
         hidden=FindHiddenSingles(PossibleList,Board)
+        DrawSolvingBoard(PossibleList)
         if not(hidden==1 or naked==1):
             break
         else:
@@ -462,6 +464,8 @@ def SolveBoard():
     while True:
         #print SolvingBoard
         Jumps+=1
+        if Jumps%200==0:
+            DrawSolvingBoard(SolvingBoard,1) #For fancy graphics and the lulz
         while True: #add 1 to currentcell, and keep doing to we come to a uncertain cell
             CurrentCell+=1
             if CurrentCell>80:
@@ -531,7 +535,7 @@ def DrawBoard(Solver=-1):
         #do Nothing
         pass
     elif Solver==0:
-        font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/8)
+        font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/10)
         text= font2.render("Solving the Board..",True,(0,0,255))
         screen.blit(text,(SCREENSIZE[0]/2 -text.get_width() / 2, SCREENSIZE[1]/2 - text.get_height() /2))
     elif Solver[0]==1:
@@ -592,7 +596,36 @@ def DrawSolvedBoard(Board):
                 screen.blit(text,(int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*(y+0.5)-text.get_height() / 2)))
     pygame.display.flip()
 
+def DrawSolvingBoard(PossibleList, Mode=0):
+    screen.fill(BACKGROUNDCOLOR)
+        #Draw Lines
+    for x in range(8):
+        if ((x+1)%3==0):
+            pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]),3)
+            pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[0])/9*(x+1)),3)
+        else:
 
+            pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]))
+            pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[0])/9*(x+1)))
+    #Draw Numbers
+    if Mode==0:
+        for i in range(81):
+            if len(PossibleList[i])==1:
+                #make the text
+                text=font.render(str(PossibleList[i][0]),True,(0,0,0)) #make black
+                #Draw
+                screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_height() / 2)))
+    elif Mode==1:
+        for i in range(81):
+            #make the text
+            if PossibleList[i][1]==1:
+                text=font.render(str(PossibleList[i][0]),True,(0,0,0)) #make black if constant
+            else:
+                text=font.render(str(PossibleList[i][0]),True,(0,0,255)) #make blue if variable
+            #Draw
+            screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_height() / 2)))
+    pygame.display.flip()
+    
 
 pygame.init()
 screen=pygame.display.set_mode(SCREENSIZE,0,32)
@@ -611,23 +644,23 @@ while 1:
             exit()
 
         elif event.type==KEYDOWN:
-            if event.key==K_1:
+            if event.key in (K_1, K_KP1) :
                 BoardNumbers[SelectedField[0]][SelectedField[1]]=1
-            elif event.key==K_2:
+            elif event.key in (K_2, K_KP2):
                 BoardNumbers[SelectedField[0]][SelectedField[1]]=2
-            elif event.key==K_3:
+            elif event.key in (K_3, K_KP3):
                 BoardNumbers[SelectedField[0]][SelectedField[1]]=3
-            elif event.key==K_4:
+            elif event.key in (K_4, K_KP4):
                 BoardNumbers[SelectedField[0]][SelectedField[1]]=4
-            elif event.key==K_5:
+            elif event.key in (K_5, K_KP5):
                 BoardNumbers[SelectedField[0]][SelectedField[1]]=5
-            elif event.key==K_6:
+            elif event.key in (K_6, K_KP6):
                 BoardNumbers[SelectedField[0]][SelectedField[1]]=6
-            elif event.key==K_7:
+            elif event.key in (K_7, K_KP7):
                 BoardNumbers[SelectedField[0]][SelectedField[1]]=7
-            elif event.key==K_8:
+            elif event.key in (K_8, K_KP8):
                 BoardNumbers[SelectedField[0]][SelectedField[1]]=8
-            elif event.key==K_9:
+            elif event.key in (K_9, K_KP9):
                 BoardNumbers[SelectedField[0]][SelectedField[1]]=9
             elif event.key==K_DELETE:
                 BoardNumbers[SelectedField[0]][SelectedField[1]]=""
@@ -653,7 +686,7 @@ while 1:
                     SelectedField[0]=0
             elif event.key==K_c: #This clears the board
                 BoardNumbers=[[""]*9 for i in range(9)]
-            elif event.key==K_RETURN:
+            elif event.key in (K_RETURN, K_KP_ENTER):
                 Ready=CheckMissplacements(BoardNumbers,0)
                 #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
                 numbers=[]
