@@ -583,10 +583,13 @@ def DrawSolvedBoard(Board):
         screen.blit(text,(SCREENSIZE[0]/2 -text.get_width() / 2, SCREENSIZE[1]/2 - text.get_height() /2))
     else:
         #Draw the solved board.
-        #user-entered values should be black, solved values should be blue
+        #user-entered values should be black, logicsolved values should be orange, bruteforce values should be blue
         for i in range(81):
             #make the text
-            text=font.render(str(Board[i][0]),True,(0,0,255)) #make blue
+            if Board[i][1]==1:
+                text=font.render(str(Board[i][0]),True,(255,165,0)) #make orange
+            else:
+                text=font.render(str(Board[i][0]),True,(0,0,255)) #make blue
             #Draw
             screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_height() / 2)))
             #Draw userentered numbers black
@@ -612,18 +615,23 @@ def DrawSolvingBoard(PossibleList, Mode=0):
         for i in range(81):
             if len(PossibleList[i])==1:
                 #make the text
-                text=font.render(str(PossibleList[i][0]),True,(0,0,0)) #make black
+                text=font.render(str(PossibleList[i][0]),True,(255,165,0)) #make orange
                 #Draw
                 screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_height() / 2)))
     elif Mode==1:
         for i in range(81):
             #make the text
             if PossibleList[i][1]==1:
-                text=font.render(str(PossibleList[i][0]),True,(0,0,0)) #make black if constant
+                text=font.render(str(PossibleList[i][0]),True,(255,165,0)) #make orange if constant
             else:
                 text=font.render(str(PossibleList[i][0]),True,(0,0,255)) #make blue if variable
             #Draw
             screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_height() / 2)))
+        #Draw user entered numbers black        
+    for x in range(9):
+        for y in range(9):
+            text=font.render(str(BoardNumbers[x][y]),True,PlacedTextColor)
+            screen.blit(text,(int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*(y+0.5)-text.get_height() / 2)))
     pygame.display.flip()
     
 
