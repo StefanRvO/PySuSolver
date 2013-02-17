@@ -768,6 +768,7 @@ from pygame.locals import *
 import os
 import hashlib
 import base64
+import Tkinter, Tkconstants, tkFileDialog
 pygame.init()
 screen=pygame.display.set_mode(SCREENSIZE,0,32)
 font = pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/12)
@@ -820,15 +821,18 @@ while 1:
                         else:
                             boardstr+="."
                 
-                #Create md5sum
+                #Create md5sum (and condense a little. We this is not collisionproof, but collisions is unlikely
                 boardmd5=base64.urlsafe_b64encode(hashlib.md5(boardstr).digest())[:-10]
                 
                 #open and create file
-                SavePath=str(os.path.dirname(os.path.realpath(sys.argv[0])))+"/SavedBoards/"
-                print boardmd5
-                f=open(SavePath+boardmd5,'w+')
-                f.write(boardstr)
-                f.close()
+                root=Tkinter.Tk()
+                fileName = tkFileDialog.asksaveasfilename(parent=root, initialfile=boardmd5,title="Save the board as")
+                root.withdraw()
+                if len(fileName ) > 0:
+                    print "Saved as "+ fileName
+                    f=open(fileName,'w+')
+                    f.write(boardstr)
+                    f.close()
                 
             elif event.key==K_UP:
                 if not SelectedField[1]==0:
@@ -880,28 +884,40 @@ while 1:
                         for i in range(9):
                             print Temp[(i*9):((i+1)*9)]
                        
-            elif event.key==K_l: #Load from a seed file
+            elif event.key==K_l: #Load from a user chosen file
+                root=Tkinter.Tk()
+                fileName = tkFileDialog.askopenfilename(parent=root,title='Open Board')
+                root.withdraw()
+                print "Loaded " +fileName
                 try:
-                    file=open('seedfile','r')
+                    file=open(fileName,'r')
                 except IOError:
                     break #File does not exist
-                BoardNumbers=[[""]*9 for i in range(9)]
-                current=0
-                while True:
-                    thischar=file.read(1)
-                    if thischar=="" or current>80:
-                        break   #Break if we reach end of file
-                    if thischar in ('0','1','2','3','4','5','6','7','8','9','.'):
-                        row=current/9
-                        collumn=current%9
-                        if not thischar in ('.','0'):
-                            BoardNumbers[row][collumn]=int(thischar)
-                        else:
-                            BoardNumbers[row][collumn]=""
-                        current+=1
-                file.close()
+                if len(fileName)>0:
+                    BoardNumbers=[[""]*9 for i in range(9)]
+                    current=0
+                    while True:
+                        thischar=file.read(1)
+                        if thischar=="" or current>80:
+                            break   #Break if we reach end of file
+                        if thischar in ('0','1','2','3','4','5','6','7','8','9','.'):
+                            row=current/9
+                            collumn=current%9
+                            if not thischar in ('.','0'):
+                                BoardNumbers[row][collumn]=int(thischar)
+                            else:
+                                BoardNumbers[row][collumn]=""
+                            current+=1
+                    file.close()
             elif event.key==K_g: #Generate a new board
-                GeneratedBoard=GenerateBoard(50)
+                try:
+                    difficulty=int(BoardNumbers[0][0])*10+int(BoardNumbers[1][0]) #Temporary workaround for parsing difficulty. Difficulty is read from the two first fields
+                except:
+                    difficulty=20
+                print "difficulty"+str(difficulty)
+                Graphics=0
+                GeneratedBoard=GenerateBoard(difficulty)
+                Graphics=1
                 #Fill The Board Into BoardNumbers
                 current=0
                 for cell in GeneratedBoard:
