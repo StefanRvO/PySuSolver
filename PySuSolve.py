@@ -1,10 +1,7 @@
 #!/usr/bin/python2
-import pygame
-from pygame.locals import *
 import sys
-import os
-import hashlib
-import base64
+import random
+
 
 SCREENSIZE=(500,500)
 BACKGROUNDCOLOR=(255,255,255)
@@ -438,7 +435,58 @@ def CheckFaultyBoard(PossibleList):
     return 0
 
 
-
+def BruteForce(PossibleList,SolvingBoard):
+#    print PossibleList
+#    print SolvingBoard
+    CurrentCell=-1
+    BackStepped=0
+    LastNotValid=0
+    Jumps=0
+    while True:
+        Jumps+=1
+        if Jumps%200==0:
+            if Graphics:
+                DrawSolvingBoard(PossibleList,SolvingBoard) #For fancy graphics and the lulz
+                print "Jumps = "+str(Jumps)
+        while True: #add 1 to currentcell, and keep doing to we come to a uncertain cell
+            CurrentCell+=1
+            if CurrentCell>80:
+                #return, the board is now solved
+                #Return jumps too    
+                SolvingBoard.append(Jumps)
+                return SolvingBoard
+                
+            if SolvingBoard[CurrentCell][1]==0: #break incrementing loop if we reach an unsolved cell
+                break
+        SolvingBoard[CurrentCell][2]=0
+        SolvingBoard[CurrentCell][0]=PossibleList[CurrentCell][SolvingBoard[CurrentCell][2]]
+        while True:
+            if BackStepped: #we have just stepped a cell back. try the next candidate for the cell
+                BackStepped=0
+                if not SolvingBoard[CurrentCell][0]==PossibleList[CurrentCell][-1]: #check if we are at last candidate
+                    SolvingBoard[CurrentCell][2]+=1
+                    SolvingBoard[CurrentCell][0]=PossibleList[CurrentCell][SolvingBoard[CurrentCell][2]]
+                else:
+                    LastNotValid=1
+            #print CheckMissplacements(SolvingBoard,1)
+            #print SolvingBoard
+            if CheckMissplacements(SolvingBoard,1)==-1 or LastNotValid: #if cell don't fit, or we tried this before, we try the next possible value for the cell
+                
+                LastNotValid=0
+                SolvingBoard[CurrentCell][2]+=1
+                if not SolvingBoard[CurrentCell][2]+1 > len(PossibleList[CurrentCell]):
+                    SolvingBoard[CurrentCell][0]=PossibleList[CurrentCell][SolvingBoard[CurrentCell][2]]
+                else: #if we have tried all possibilities, go back to next unsolved cell
+                    SolvingBoard[CurrentCell][0]=""
+                    while True:
+                        CurrentCell-=1
+                        BackStepped=1
+                        if CurrentCell<0:
+                            return -1 #Board could not be solved
+                        if not SolvingBoard[CurrentCell][1]==1:
+                            break
+            else: #break if cell fits
+                break
 
 
 def SolveBoard():
@@ -472,63 +520,50 @@ def SolveBoard():
     
     #brute force part
     #Here we use brute force to solve for the remaining cells.
-    
-    
 
-
-
-    #Now we make a loop.
-    CurrentCell=-1
-    BackStepped=0
-    LastNotValid=0
-    Jumps=0
-    while True:
-        #print SolvingBoard
-        Jumps+=1
-        if Jumps%200==0:
-            if Graphics:
-                DrawSolvingBoard(PossibleList,SolvingBoard) #For fancy graphics and the lulz
-            print "Jumps = "+str(Jumps)
-        while True: #add 1 to currentcell, and keep doing to we come to a uncertain cell
-            CurrentCell+=1
-            if CurrentCell>80:
-                #return, the board is now solved
-                #Return jumps too    
-                SolvingBoard.append(Jumps)
-                return SolvingBoard
-                
-            if SolvingBoard[CurrentCell][1]==0: #break incrementing loop if we reach an unsolved cell
-                break
-        SolvingBoard[CurrentCell][2]=0
-        SolvingBoard[CurrentCell][0]=PossibleList[CurrentCell][SolvingBoard[CurrentCell][2]]
-        while True:
-            if BackStepped: #we have just stepped a cell back. try the next candidate for the cell
-                BackStepped=0
-                if not SolvingBoard[CurrentCell][0]==PossibleList[CurrentCell][-1]: #check if we are at last candidate
-                    SolvingBoard[CurrentCell][2]+=1
-                    SolvingBoard[CurrentCell][0]=PossibleList[CurrentCell][SolvingBoard[CurrentCell][2]]
-                else:
-                    LastNotValid=1
-            if CheckMissplacements(SolvingBoard,1)==-1 or LastNotValid: #if cell don't fit, or we tried this before, we try the next possible value for the cell
-                LastNotValid=0
-                SolvingBoard[CurrentCell][2]+=1
-                if not SolvingBoard[CurrentCell][2]+1 > len(PossibleList[CurrentCell]):
-                    SolvingBoard[CurrentCell][0]=PossibleList[CurrentCell][SolvingBoard[CurrentCell][2]]
-                else: #if we have tried all possibilities, go back to next unsolved cell
-                    SolvingBoard[CurrentCell][0]=""
-                    while True:
-                        CurrentCell-=1
-                        BackStepped=1
-                        if CurrentCell<0:
-                            return -1 #Board could not be solved
-                        if not SolvingBoard[CurrentCell][1]==1:
-                            break
-            else: #break if cell fits
-                break
+    SolvedBoard=BruteForce(PossibleList,SolvingBoard)
+    return SolvedBoard
       
 
 
-
+def GenerateBoard(difficulty):
+    random.seed()
+    #This function generates a sudoku board #It is not garanteed to have an unique solution
+    #First we fill up the candidate list with all candidates
+    CandidateList=[]
+    for i in range(81):
+        CandidateList.append([1,2,3,4,5,6,7,8,9])
+    #Then we randomize the list for each cell
+    for i in range(81):
+        random.shuffle(CandidateList[i])
+    SolvingBoard=[]
+    for i in range(81):
+        SolvingBoard.append(["",0,0])
+    
+    GeneratedBoard=BruteForce(CandidateList,SolvingBoard)
+    if not GeneratedBoard==-1:
+        print GeneratedBoard[-1]
+        Temp=[""]*81
+        for i in range(81):
+            Temp[i]=GeneratedBoard[i][0]
+        GeneratedBoard=Temp
+    #Now we remove cells until the board only contains the number of cells specified in difficulty
+    while True:
+        GeneratedBoard[random.randint(0,80)]=""
+    
+    
+        filled=0
+        for i in range(81):
+            if GeneratedBoard[i] in (1,2,3,4,5,6,7,8,9):
+                filled+=1
+        if filled<=difficulty:
+            break
+    return GeneratedBoard
+ 
+    
+    
+    
+    
 
 
 
@@ -624,6 +659,7 @@ def DrawSolvedBoard(Board):
 
 def DrawSolvingBoard(PossibleList,Board=0):
     screen.fill(BACKGROUNDCOLOR)
+    candidatefont = pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/28)
         #Draw Lines
     for x in range(8):
         if ((x+1)%3==0):
@@ -643,7 +679,6 @@ def DrawSolvingBoard(PossibleList,Board=0):
                 screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_height() / 2)))
             elif not len(PossibleList[i])==0:
                 #draw the possible candidates
-                candidatefont = pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/28)
                 for candidate in PossibleList[i]:
                     text=candidatefont.render(str(candidate),True,(255,165,0))
 
@@ -658,7 +693,6 @@ def DrawSolvingBoard(PossibleList,Board=0):
                 text=font.render(str(Board[i][0]),True,(0,0,255)) #make blue if variable
             else:
                 #draw the possible candidates
-                candidatefont = pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/28)
                 for candidate in PossibleList[i]:
                     text=candidatefont.render(str(candidate),True,(255,165,0))
 
@@ -728,8 +762,12 @@ if len(sys.argv)>1: #If given argument, run in commandline only
         print "The given board was not valid. It contains two identical numbers in one unit"
     sys.exit()
     
-        
-    sys.exit()    
+
+import pygame
+from pygame.locals import *
+import os
+import hashlib
+import base64
 pygame.init()
 screen=pygame.display.set_mode(SCREENSIZE,0,32)
 font = pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/12)
@@ -862,7 +900,18 @@ while 1:
                             BoardNumbers[row][collumn]=""
                         current+=1
                 file.close()
-                
+            elif event.key==K_g: #Generate a new board
+                GeneratedBoard=GenerateBoard(50)
+                #Fill The Board Into BoardNumbers
+                current=0
+                for cell in GeneratedBoard:
+                    row=current/9
+                    collumn=current%9
+                    current+=1
+                    if cell=="":
+                        BoardNumbers[row][collumn]=""
+                    else:
+                        BoardNumbers[row][collumn]=int(cell)
                        
                             
                         
