@@ -7,8 +7,10 @@ SCREENSIZE=(500,500)
 BACKGROUNDCOLOR=(255,255,255)
 SELECTEDCOLOR=(200,200,200)
 PlacedTextColor=(0,0,0)
-SolvedTextColor=(255,0,0)
+LogicSolveColor=(255,165,0)
+BruteSolveColor=(0,0,255)
 LineColor=(0,0,0)
+ErrorColor=(255,0,0)
 def CheckMissplacements(Board,Solver=0):
     #checks if the numbers is correctly placed on the board so the solving can begin. e.g. There must not be the same number in the same block, row or collum twice.
 #    return 0 if no errors, 1 if error in blocks, 2 if error in rows, and 3 if error in collums.
@@ -594,26 +596,26 @@ def DrawBoard(Solver=-1):
         pass
     elif Solver==0:
         font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/10)
-        text= font2.render("Solving the Board..",True,(0,0,255))
+        text= font2.render("Solving the Board..",True,BruteSolveColor)
         screen.blit(text,(SCREENSIZE[0]/2 -text.get_width() / 2, SCREENSIZE[1]/2 - text.get_height() /2))
     elif Solver[0]==1:
         #error in block, mark the error red
-        text=font.render(str(Solver[1]),True,(255,0,0))
+        text=font.render(str(Solver[1]),True,ErrorColor)
 
         screen.blit(text,(int(float(SCREENSIZE[0])/9*((3*Solver[2]+Solver[4]/3)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((3*Solver[3]+Solver[4]%3)+0.5)-text.get_height() / 2)))
 
     elif Solver[0]==2:
         #Error in Row. Mark error red
-        text=font.render(str(Solver[1]),True,(255,0,0))
+        text=font.render(str(Solver[1]),True,ErrorColor)
         screen.blit(text,(int(float(SCREENSIZE[0])/9*((Solver[2])+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((Solver[4])+0.5)-text.get_height() / 2)))
     elif Solver[0]==3:
         #Error in Collum. Mark error red
-        text=font.render(str(Solver[1]),True,(255,0,0))
+        text=font.render(str(Solver[1]),True,ErrorColor)
         screen.blit(text,(int(float(SCREENSIZE[0])/9*((Solver[4])+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((Solver[2])+0.5)-text.get_height() / 2)))
     elif Solver[0]==4: #To few numbers entered
         font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/12)
-        text= font2.render("You only entered "+str(Solver[1])+" numbers",True,(255,0,0))
-        text2= font2.render("You need to enter at least 16!",True,(255,0,0))
+        text= font2.render("You only entered "+str(Solver[1])+" numbers",True,ErrorColor)
+        text2= font2.render("You need to enter at least 16!",True,ErrorColor)
         screen.blit(text,(SCREENSIZE[0]/2 -text.get_width() / 2, SCREENSIZE[1]/2 - text.get_height()))
         screen.blit(text2,(SCREENSIZE[0]/2 -text2.get_width() / 2, SCREENSIZE[1]/2 + text2.get_height()/2))
 
@@ -645,9 +647,9 @@ def DrawSolvedBoard(Board):
         for i in range(81):
             #make the text
             if Board[i][1]==1:
-                text=font.render(str(Board[i][0]),True,(255,165,0)) #make orange
+                text=font.render(str(Board[i][0]),True,LogicSolveColor) #make orange
             else:
-                text=font.render(str(Board[i][0]),True,(0,0,255)) #make blue
+                text=font.render(str(Board[i][0]),True,BruteSolveColor) #make blue
             #Draw
             screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_height() / 2)))
             #Draw userentered numbers black
@@ -674,13 +676,13 @@ def DrawSolvingBoard(PossibleList,Board=0):
         for i in range(81):
             if len(PossibleList[i])==1:
                 #make the text
-                text=font.render(str(PossibleList[i][0]),True,(255,165,0)) #make orange
+                text=font.render(str(PossibleList[i][0]),True,LogicSolveColor) #make orange
                 #Draw
                 screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_height() / 2)))
             elif not len(PossibleList[i])==0:
                 #draw the possible candidates
                 for candidate in PossibleList[i]:
-                    text=candidatefont.render(str(candidate),True,(255,165,0))
+                    text=candidatefont.render(str(candidate),True,LogicSolveColor)
 
                     screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
 
@@ -688,13 +690,13 @@ def DrawSolvingBoard(PossibleList,Board=0):
         for i in range(81):
             #make the text
             if Board[i][1]==1:
-                text=font.render(str(Board[i][0]),True,(255,165,0)) #make orange if constant
+                text=font.render(str(Board[i][0]),True,LogicSolveColor) #make orange if constant
             elif not Board[i][0]=="":
-                text=font.render(str(Board[i][0]),True,(0,0,255)) #make blue if variable
+                text=font.render(str(Board[i][0]),True,BruteSolveColor) #make blue if variable
             else:
                 #draw the possible candidates
                 for candidate in PossibleList[i]:
-                    text=candidatefont.render(str(candidate),True,(255,165,0))
+                    text=candidatefont.render(str(candidate),True,LogicSolveColor)
 
                     screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
                 
@@ -914,7 +916,7 @@ while 1:
                     difficulty=int(BoardNumbers[0][0])*10+int(BoardNumbers[1][0]) #Temporary workaround for parsing difficulty. Difficulty is read from the two first fields
                 except:
                     difficulty=20
-                print "difficulty"+str(difficulty)
+                print "difficulty: "+str(difficulty)
                 Graphics=0
                 GeneratedBoard=GenerateBoard(difficulty)
                 Graphics=1
