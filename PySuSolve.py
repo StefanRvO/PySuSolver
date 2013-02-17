@@ -773,6 +773,9 @@ import base64
 import Tkinter, Tkconstants, tkFileDialog
 pygame.init()
 screen=pygame.display.set_mode(SCREENSIZE,0,32)
+pygame.display.set_caption("PySuSolve", "PySS") #Set title
+icon=pygame.image.load(os.path.dirname(os.path.realpath(sys.argv[0]))+"/PySuSolve.png").convert() #Path to icon
+pygame.display.set_icon(icon)
 font = pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/12)
 SelectedField=[0,0]
 DrawBoard()
@@ -823,7 +826,7 @@ while 1:
                         else:
                             boardstr+="."
                 
-                #Create md5sum (and condense a little. We this is not collisionproof, but collisions is unlikely
+                #Create md5sum (and condense a little. This is not collisionproof, but collisions is unlikely
                 boardmd5=base64.urlsafe_b64encode(hashlib.md5(boardstr).digest())[:-10]
                 
                 #open and create file
