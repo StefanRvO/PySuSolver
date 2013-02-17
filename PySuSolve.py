@@ -3,7 +3,9 @@ import sys
 import random
 
 
-SCREENSIZE=(500,500)
+SCREENSIZE=(600,600)
+FONTUSED="Wargames"
+ScaleFont=0.85 #Used to scale the font a bit if the different fonts are slightly different in size. 1 fits to times new roman
 BACKGROUNDCOLOR=(255,255,255)
 SELECTEDCOLOR=(200,200,200)
 PlacedTextColor=(0,0,0)
@@ -11,6 +13,13 @@ LogicSolveColor=(255,165,0)
 BruteSolveColor=(0,0,255)
 LineColor=(0,0,0)
 ErrorColor=(255,0,0)
+#Font size should be choosen from the smallest dimension of the screen
+if SCREENSIZE[0]>SCREENSIZE[1]:
+    FONTBASIS=SCREENSIZE[1]
+else:
+    FONTBASIS=SCREENSIZE[0]
+    
+    
 def CheckMissplacements(Board,Solver=0):
     #checks if the numbers is correctly placed on the board so the solving can begin. e.g. There must not be the same number in the same block, row or collum twice.
 #    return 0 if no errors, 1 if error in blocks, 2 if error in rows, and 3 if error in collums.
@@ -573,47 +582,47 @@ def GenerateBoard(difficulty):
 def DrawBoard(Solver=-1):
     screen.fill(BACKGROUNDCOLOR)
     #Color the selected field
-    pygame.draw.rect(screen,SELECTEDCOLOR,pygame.Rect((SelectedField[0]*SCREENSIZE[0]/9,SelectedField[1]*SCREENSIZE[1]/9),(SCREENSIZE[1]/9+1,SCREENSIZE[0]/9+1)))
+    pygame.draw.rect(screen,SELECTEDCOLOR,pygame.Rect((SelectedField[0]*SCREENSIZE[0]/9,SelectedField[1]*SCREENSIZE[1]/9),(SCREENSIZE[0]/9+1,SCREENSIZE[1]/9+1)))
         #Draw lines vertical and horizontal, every third should be wider to mark the big and small grid.
     for x in range(8):
         if ((x+1)%3==0):
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]),3)
-            pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[0])/9*(x+1)),3)
+            pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[1])/9*(x+1)),3)
         else:
 
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]))
-            pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[0])/9*(x+1)))
+            pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[1])/9*(x+1)))
 
     #Draw numbers on board
     for x in range(9):
         for y in range(9):
             text=font.render(str(BoardNumbers[x][y]),True,PlacedTextColor)
-            screen.blit(text,(int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*(y+0.5)-text.get_height() / 2)))
+            screen.blit(text,(int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*(y+0.5)-text.get_height() / 2)))
             #print int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2)
             #print int(float(SCREENSIZE[0])/9*(y+0.5)-text.get_height() / 2)
     if Solver==-1:
         #do Nothing
         pass
     elif Solver==0:
-        font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/10)
+        font2=  pygame.font.SysFont(FONTUSED, int(ScaleFont*float(FONTBASIS)/10))
         text= font2.render("Solving the Board..",True,BruteSolveColor)
         screen.blit(text,(SCREENSIZE[0]/2 -text.get_width() / 2, SCREENSIZE[1]/2 - text.get_height() /2))
     elif Solver[0]==1:
         #error in block, mark the error red
         text=font.render(str(Solver[1]),True,ErrorColor)
 
-        screen.blit(text,(int(float(SCREENSIZE[0])/9*((3*Solver[2]+Solver[4]/3)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((3*Solver[3]+Solver[4]%3)+0.5)-text.get_height() / 2)))
+        screen.blit(text,(int(float(SCREENSIZE[0])/9*((3*Solver[2]+Solver[4]/3)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((3*Solver[3]+Solver[4]%3)+0.5)-text.get_height() / 2)))
 
     elif Solver[0]==2:
         #Error in Row. Mark error red
         text=font.render(str(Solver[1]),True,ErrorColor)
-        screen.blit(text,(int(float(SCREENSIZE[0])/9*((Solver[2])+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((Solver[4])+0.5)-text.get_height() / 2)))
+        screen.blit(text,(int(float(SCREENSIZE[0])/9*((Solver[2])+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((Solver[4])+0.5)-text.get_height() / 2)))
     elif Solver[0]==3:
         #Error in Collum. Mark error red
         text=font.render(str(Solver[1]),True,ErrorColor)
-        screen.blit(text,(int(float(SCREENSIZE[0])/9*((Solver[4])+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((Solver[2])+0.5)-text.get_height() / 2)))
+        screen.blit(text,(int(float(SCREENSIZE[0])/9*((Solver[4])+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((Solver[2])+0.5)-text.get_height() / 2)))
     elif Solver[0]==4: #To few numbers entered
-        font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/12)
+        font2=  pygame.font.SysFont(FONTUSED, int(ScaleFont*float(FONTBASIS)/12))
         text= font2.render("You only entered "+str(Solver[1])+" numbers",True,ErrorColor)
         text2= font2.render("You need to enter at least 16!",True,ErrorColor)
         screen.blit(text,(SCREENSIZE[0]/2 -text.get_width() / 2, SCREENSIZE[1]/2 - text.get_height()))
@@ -625,20 +634,20 @@ def DrawBoard(Solver=-1):
 def DrawSolvedBoard(Board):
     screen.fill(BACKGROUNDCOLOR)
     #Color the selected field
-    pygame.draw.rect(screen,SELECTEDCOLOR,pygame.Rect((SelectedField[0]*SCREENSIZE[0]/9,SelectedField[1]*SCREENSIZE[1]/9),(SCREENSIZE[1]/9+1,SCREENSIZE[0]/9+1)))
+    pygame.draw.rect(screen,SELECTEDCOLOR,pygame.Rect((SelectedField[0]*SCREENSIZE[0]/9,SelectedField[1]*SCREENSIZE[1]/9),(SCREENSIZE[0]/9+1,SCREENSIZE[1]/9+1)))
         #Draw lines vertical and horizontal, every third should be wider to mark the big and small grid.
     for x in range(8):
         if ((x+1)%3==0):
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]),3)
-            pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[0])/9*(x+1)),3)
+            pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[1])/9*(x+1)),3)
         else:
 
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]))
-            pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[0])/9*(x+1)))
+            pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[1])/9*(x+1)))
 
     if Board==-1: #We could not solve the board
 
-        font2=  pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/8)
+        font2=  pygame.font.SysFont(FONTUSED, int(ScaleFont*float(FONTBASIS)/8))
         text= font2.render("Could not Solve",True,(255,0,0))
         screen.blit(text,(SCREENSIZE[0]/2 -text.get_width() / 2, SCREENSIZE[1]/2 - text.get_height() /2))
     else:
@@ -651,26 +660,26 @@ def DrawSolvedBoard(Board):
             else:
                 text=font.render(str(Board[i][0]),True,BruteSolveColor) #make blue
             #Draw
-            screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_height() / 2)))
+            screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9)+0.5)-text.get_height() / 2)))
             #Draw userentered numbers black
         for x in range(9):
             for y in range(9):
                 text=font.render(str(BoardNumbers[x][y]),True,PlacedTextColor)
-                screen.blit(text,(int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*(y+0.5)-text.get_height() / 2)))
+                screen.blit(text,(int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*(y+0.5)-text.get_height() / 2)))
     pygame.display.flip()
 
 def DrawSolvingBoard(PossibleList,Board=0):
     screen.fill(BACKGROUNDCOLOR)
-    candidatefont = pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/28)
+    candidatefont = pygame.font.SysFont(FONTUSED, int(ScaleFont*float(FONTBASIS)/28))
         #Draw Lines
     for x in range(8):
         if ((x+1)%3==0):
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]),3)
-            pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[0])/9*(x+1)),3)
+            pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[1])/9*(x+1)),3)
         else:
 
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]))
-            pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[0])/9*(x+1)))
+            pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[1])/9*(x+1)))
     #Draw Numbers
     if Board==0:
         for i in range(81):
@@ -678,13 +687,13 @@ def DrawSolvingBoard(PossibleList,Board=0):
                 #make the text
                 text=font.render(str(PossibleList[i][0]),True,LogicSolveColor) #make orange
                 #Draw
-                screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_height() / 2)))
+                screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9)+0.5)-text.get_height() / 2)))
             elif not len(PossibleList[i])==0:
                 #draw the possible candidates
                 for candidate in PossibleList[i]:
                     text=candidatefont.render(str(candidate),True,LogicSolveColor)
 
-                    screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
+                    screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
 
     else: #We are bruteforcing
         for i in range(81):
@@ -698,16 +707,16 @@ def DrawSolvingBoard(PossibleList,Board=0):
                 for candidate in PossibleList[i]:
                     text=candidatefont.render(str(candidate),True,LogicSolveColor)
 
-                    screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
+                    screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
                 
             #Draw
             if Board[i][1]==1 or not Board[i][0]=="":
-                screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_height() / 2)))
+                screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9)+0.5)-text.get_height() / 2)))
         #Draw user entered numbers black        
     for x in range(9):
         for y in range(9):
             text=font.render(str(BoardNumbers[x][y]),True,PlacedTextColor)
-            screen.blit(text,(int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2),int(float(SCREENSIZE[0])/9*(y+0.5)-text.get_height() / 2)))
+            screen.blit(text,(int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*(y+0.5)-text.get_height() / 2)))
     pygame.display.flip()
     #pygame.time.wait(500)
     #print "Drew"
@@ -776,7 +785,7 @@ screen=pygame.display.set_mode(SCREENSIZE,0,32)
 pygame.display.set_caption("PySuSolve", "PySS") #Set title
 icon=pygame.image.load(os.path.dirname(os.path.realpath(sys.argv[0]))+"/PySuSolve.png").convert() #Path to icon
 pygame.display.set_icon(icon)
-font = pygame.font.SysFont("Times New Roman", SCREENSIZE[0]/12)
+font = pygame.font.SysFont(FONTUSED, int(ScaleFont*float(FONTBASIS)/12))
 SelectedField=[0,0]
 DrawBoard()
 Enterpressed=0
