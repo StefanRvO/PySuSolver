@@ -3,9 +3,9 @@ import sys
 import random
 
 
-SCREENSIZE=(600,600)
-FONTUSED="Wargames"
-ScaleFont=0.85 #Used to scale the font a bit if the different fonts are slightly different in size. 1 fits to times new roman
+SCREENSIZE=(500,500)
+FONTUSED="Times New Roman"
+ScaleFont=1 #Used to scale the font a bit if the different fonts are slightly different in size. 1 fits to times new roman
 BACKGROUNDCOLOR=(255,255,255)
 SELECTEDCOLOR=(200,200,200)
 PlacedTextColor=(0,0,0)
@@ -393,8 +393,8 @@ def PrepareBoard(Board):
             naked=FindNakedSingles(PossibleList,Board)
             hidden=FindHiddenSingles(PossibleList,Board)
             #SolvingBoard=checker[0]
-            print "naked : "+str(naked)
-            print "CrossCheck: "+str(hidden)
+            #print "naked : "+str(naked)
+            #print "CrossCheck: "+str(hidden)
             
             if not (hidden==1 or naked==1):
                 break
@@ -416,14 +416,14 @@ def PrepareBoard(Board):
             if  (TempList==PossibleList):
                 break
             else:
-                print "Found Naked or Hidden groups or pointing pairs"
+                #print "Found Naked or Hidden groups or pointing pairs"
                 if Graphics:
                     DrawSolvingBoard(PossibleList)
                 
         naked=FindNakedSingles(PossibleList,Board)
         hidden=FindHiddenSingles(PossibleList,Board)
-        print "naked : "+str(naked)
-        print "CrossCheck: "+str(hidden)
+        #print "naked : "+str(naked)
+        #print "CrossCheck: "+str(hidden)
         if not(hidden==1 or naked==1):
             break
         else:
@@ -458,7 +458,7 @@ def BruteForce(PossibleList,SolvingBoard):
         if Jumps%200==0:
             if Graphics:
                 DrawSolvingBoard(PossibleList,SolvingBoard) #For fancy graphics and the lulz
-                print "Jumps = "+str(Jumps)
+                #print "Jumps = "+str(Jumps)
         while True: #add 1 to currentcell, and keep doing to we come to a uncertain cell
             CurrentCell+=1
             if CurrentCell>80:
@@ -553,7 +553,7 @@ def GenerateBoard(difficulty):
     
     GeneratedBoard=BruteForce(CandidateList,SolvingBoard)
     if not GeneratedBoard==-1:
-        print GeneratedBoard[-1]
+    #    print GeneratedBoard[-1]
         Temp=[""]*81
         for i in range(81):
             Temp[i]=GeneratedBoard[i][0]
@@ -720,6 +720,14 @@ def DrawSolvingBoard(PossibleList,Board=0):
     pygame.display.flip()
     #pygame.time.wait(500)
     #print "Drew"
+def PrintBoard(Board): #Prints board to stdout
+    for i in range(9):
+        for j in Board[(i*9):((i+1)*9)]:
+            if j in (1,2,3,4,5,6,7,8,9): 
+                print str(j)+" ",
+            else:
+                print ". ",
+        print 
     
     
 BoardNumbers=[[""]*9 for i in range(9)]
@@ -729,48 +737,109 @@ if len(sys.argv)>1: #If given argument, run in commandline only
     Graphics=0
     #The argument should be a board of the same format as the savefiles
     #e.g. ......1.....6..7.8..4........67.1......4...9...5....4..8..9.2..72..8........5..3. 
-    GivenBoard=sys.argv[1]
-    #Put Board into BoardNumbers
-    current=0
-    for char in GivenBoard:
-        if char in ('0','1','2','3','4','5','6','7','8','9','.'):
-            if current >80:
-                break   #Break if we reach board limit
-            row=current/9
-            collumn=current%9
-            if not char in ('.','0'):
-                BoardNumbers[row][collumn]=int(char)
-            else:
-                BoardNumbers[row][collumn]=""
-        current+=1
+    if sys.argv[1]=="--solve":
+        try:
+            GivenBoard=sys.argv[2]
+            #Put Board into BoardNumbers
+            current=0
+            for char in GivenBoard:
+                if char in ('0','1','2','3','4','5','6','7','8','9','.'):
+                    if current >80:
+                        break   #Break if we reach board limit
+                    row=current/9
+                    collumn=current%9
+                    if not char in ('.','0'):
+                        BoardNumbers[row][collumn]=int(char)
+                    else:
+                        BoardNumbers[row][collumn]=""
+                current+=1
         
-    #Solve
-    Ready=CheckMissplacements(BoardNumbers,0)
-    #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
-    numbers=[]
-    for i in range(9):
-        for j in range(9):
-            numbers.append(BoardNumbers[i][j])
-    enteredNumbers=81-numbers.count("")
-    #if enteredNumbers<=-1:
-    #    Ready=(4,enteredNumbers)
-    #print Ready #debug
-    if Ready==0:
-         #print SolveBoard()
-        SolvedBoard=SolveBoard()
-        if not SolvedBoard==-1:                  
-            print  SolvedBoard[-1]
-            Temp=[""]*81           
-            #Print the solved Board
-            for i in range(81):
-                Temp[i]=SolvedBoard[i][0]
+            #Solve
+            Ready=CheckMissplacements(BoardNumbers,0)
+            #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
+            numbers=[]
             for i in range(9):
-               print Temp[(i*9):((i+1)*9)]
-        else:
-            print "The given board was not valid. It could not be solved"
-
+                for j in range(9):
+                    numbers.append(BoardNumbers[i][j])
+            enteredNumbers=81-numbers.count("")
+            #if enteredNumbers<=-1:
+            #    Ready=(4,enteredNumbers)
+            #print Ready #debug
+            if Ready==0:
+                 #print SolveBoard()
+                SolvedBoard=SolveBoard()
+                if not SolvedBoard==-1:                  
+                    #print  SolvedBoard[-1]
+                    Temp=[""]*81           
+                    #Print the solved Board
+                    for i in range(81):
+                        Temp[i]=SolvedBoard[i][0]
+                    
+                    AsString=0
+                    try:
+                        if sys.argv[3]=="--string":
+                            AsString=1
+                            #output as string instead of board
+                
+                            #Make string
+                            boardstr=""
+                            for cell in Temp:
+                                if cell in (1,2,3,4,5,6,7,8,9):
+                                    boardstr+=str(cell)
+                                elif cell=="":
+                                    boardstr+="."
+                            #Output string:
+                            print boardstr
+                    except IndexError:
+                        pass
+                    if not AsString:
+                        PrintBoard(Temp)
+                else:
+                    print "The given board was not valid. It could not be solved"
+        
+            else:
+                print "The given board was not valid. It contains two identical numbers in one unit"
+        except IndexError:
+            print """
+Usage:
+    PySuSolve.py [--solve or --generate][<board> or <difficulty>][--string (optional)]
+    Start without argument for a graphical interface"""
+    
+    elif sys.argv[1]=="--generate":
+        try:
+            difficulty=int(sys.argv[2])
+            GeneratedBoard=GenerateBoard(difficulty)
+            AsString=0
+            try:
+                if sys.argv[3]=="--string":
+                    AsString=1
+                    #output as string instead of board
+                
+                    #Make string
+                    boardstr=""
+                    for cell in GeneratedBoard:
+                        if cell in (1,2,3,4,5,6,7,8,9):
+                            boardstr+=str(cell)
+                        elif cell=="":
+                            boardstr+="."
+                    #Output string:
+                    print boardstr
+            except IndexError:
+                pass
+            if not AsString==1:
+                PrintBoard(GeneratedBoard)
+        except IndexError:
+            print """
+Usage:
+    PySuSolve.py [--solve or --generate][<board> or <difficulty>][--string (optional)]
+    Start without argument for a graphical interface"""
     else:
-        print "The given board was not valid. It contains two identical numbers in one unit"
+        print """
+Usage:
+    PySuSolve.py [--solve or --generate][<board> or <difficulty>][--string (optional)]
+    Start without argument for a graphical interface"""            
+            
+    
     sys.exit()
     
 
@@ -895,8 +964,7 @@ while 1:
                         #Print the solved Board
                         for i in range(81):
                             Temp[i]=SolvedBoard[i][0]
-                        for i in range(9):
-                            print Temp[(i*9):((i+1)*9)]
+                        PrintBoard(Temp)
                        
             elif event.key==K_l: #Load from a user chosen file
                 root=Tkinter.Tk()
@@ -924,11 +992,17 @@ while 1:
                             current+=1
                     file.close()
             elif event.key==K_g: #Generate a new board
-                try:
-                    difficulty=int(BoardNumbers[0][0])*10+int(BoardNumbers[1][0]) #Temporary workaround for parsing difficulty. Difficulty is read from the two first fields
-                except:
-                    difficulty=20
-                print "difficulty: "+str(difficulty)
+                if not BoardNumbers[0][0]=="" and not BoardNumbers[1][0]=="":
+                    difficulty=int(BoardNumbers[0][0])*10+int(BoardNumbers[1][0])
+                elif BoardNumbers[0][0]=="" and not BoardNumbers[1][0]=="":
+                    difficulty=int(BoardNumbers[1][0])
+                elif  BoardNumbers[0][1]=="" and not BoardNumbers[0][0]=="":
+                    difficulty= int(BoardNumbers[0][0])*10
+                else:
+                    print [BoardNumbers[0][0],BoardNumbers[1][0]]
+                    break
+
+                #print "difficulty: "+str(difficulty)
                 Graphics=0
                 GeneratedBoard=GenerateBoard(difficulty)
                 Graphics=1
