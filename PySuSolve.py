@@ -3,76 +3,73 @@ import sys
 import random
 
 
-SCREENSIZE=(500,500)
-FONTUSED="Times New Roman"
-ScaleFont=1 #Used to scale the font a bit if the different fonts are slightly different in size. 1 fits to times new roman
-BACKGROUNDCOLOR=(255,255,255)
-SELECTEDCOLOR=(200,200,200)
-PlacedTextColor=(0,0,0)
-LogicSolveColor=(255,165,0)
-BruteSolveColor=(0,0,255)
-LineColor=(0,0,0)
-ErrorColor=(255,0,0)
+SCREENSIZE = (500, 500)
+FONTUSED = "Times New Roman"
+ScaleFont = 1 #Used to scale the font a bit if the different fonts are slightly different in size. 1 fits to times new roman
+BACKGROUNDCOLOR = (255, 255, 255)
+SELECTEDCOLOR = (200, 200, 200)
+PlacedTextColor = (0, 0, 0)
+LogicSolveColor = (255, 165, 0)
+BruteSolveColor=(0, 0, 255)
+LineColor=(0, 0, 0)
+ErrorColor=(255, 0, 0)
 #Font size should be choosen from the smallest dimension of the screen
-if SCREENSIZE[0]>SCREENSIZE[1]:
-    FONTBASIS=SCREENSIZE[1]
+if SCREENSIZE[0] > SCREENSIZE[1]:
+    FONTBASIS = SCREENSIZE[1]
 else:
-    FONTBASIS=SCREENSIZE[0]
-    
-    
-def CheckMissplacements(Board,Solver=0):
+    FONTBASIS = SCREENSIZE[0]
+
+
+def CheckMissplacements(Board, Solver = 0):
     #checks if the numbers is correctly placed on the board so the solving can begin. e.g. There must not be the same number in the same block, row or collum twice.
 #    return 0 if no errors, 1 if error in blocks, 2 if error in rows, and 3 if error in collums.
-    #If the second argument given is 1, return -1 on error
+    #If the second argument given is 1, we calculate with a 1-dimensional list. return -1 on error
     #Check the blocks
     for x in xrange(3):
         for y in xrange(3):
             Blocknumbers=[]
             for i in range(3):
                 for j in range (3):
-                    if Solver==0:
-                        Blocknumbers.append(Board[3*x+i][3*y+j])
-                        #Blocknumbers=[Board[3*x+0][3*y+0],Board[3*x+0][3*y+1],Board[3*x+0][3*y+2],Board[3*x+1][3*y+0],Board[3*x+1][3*y+1],Board[3*x+1][3*y+2],Board[3*x+2][3*y+0],Board[3*x+2][3*y+1],Board[3*x+2][3*y+2]] #This is ugly, but hopefully more effective than .append()
+                    if Solver == 0:
+                        Blocknumbers.append(Board[(3*x+i)*9+(3*y+j)])
 
                     else:
                         Blocknumbers.append(Board[(3*x+i)*9+(3*y+j)][0])
-                        #Blocknumbers=[Board[(3*x+0)*9+(3*y+0)][0],Board[(3*x+0)*9+(3*y+1)][0],Board[(3*x+0)*9+(3*y+2)][0],Board[(3*x+1)*9+(3*y+0)][0],Board[(3*x+1)*9+(3*y+1)][0],Board[(3*x+1)*9+(3*y+2)][0],Board[(3*x+2)*9+(3*y+0)][0],Board[(3*x+2)*9+(3*y+1)][0],Board[(3*x+2)*9+(3*y+2)][0]]
             for l in xrange(1,10):
-                if (Blocknumbers.count(l)>1):
-                    if(Solver==0):
-                        return (1,l,x,y,Blocknumbers.index(l))
+                if (Blocknumbers.count(l) > 1):
+                    if(Solver == 0):
+                        return (1, l, x, y, Blocknumbers.index(l))
                     else:
                         return -1
     # Check Rows
     for x in xrange(9):
-        Rownumbers=[]
+        Rownumbers = []
         for y in range(9):
-            if Solver==0:
-                Rownumbers.append(Board[x][y])
-                #Rownumbers=[Board[x][0],Board[x][1],Board[x][2],Board[x][3],Board[x][4],Board[x][5],Board[x][6],Board[x][7],Board[x][8]]
+            if Solver == 0:
+                Rownumbers.append(Board[x*9+y])
+
             else:
                 Rownumbers.append(Board[x*9+y][0])
-                #Rownumbers=[Board[x*9+0][0],Board[x*9+1][0],Board[x*9+2][0],Board[x*9+3][0],Board[x*9+4][0],Board[x*9+5][0],Board[x*9+6][0],Board[x*9+7][0],Board[x*9+8][0]]
+
         for l in xrange(1,10):
-            if (Rownumbers.count(l)>1):
-                if (Solver==0):
-                    return (2,l,x,y,Rownumbers.index(l))
+            if (Rownumbers.count(l) > 1):
+                if (Solver == 0):
+                    return (2, l, x, y, Rownumbers.index(l))
                 else:
                     return -1
     #Check Collums
     for y in xrange(9):
-        Collumnumbers=[]
+        Collumnumbers = []
         for x in range(9):
-            if Solver==0:
-                Collumnumbers.append(Board[x][y])
-                #Coullumnumbers=[Board[0][y],Board[1][y],Board[2][y],Board[3][y],Board[4][y],Board[5][y],Board[6][y],Board[7][y],Board[8][y]]
+            if Solver == 0:
+                Collumnumbers.append(Board[x*9+y])
+
             else:
                 Collumnumbers.append(Board[x*9+y][0])
-                #Collumnumbers=[Board[0*9+y][0],Board[1*9+y][0],Board[2*9+y][0],Board[3*9+y][0],Board[4*9+y][0],Board[5*9+y][0],Board[6*9+y][0],Board[7*9+y][0],Board[8*9+y][0]]
         for l in xrange(1,10):
-            if (Collumnumbers.count(l)>1):
-                if Solver==0:
-                    return (3,l,y,x,Collumnumbers.index(l))
+            if (Collumnumbers.count(l) > 1):
+                if Solver == 0:
+                    return (3, l, y, x, Collumnumbers.index(l))
                 else:
                     return -1
 
@@ -80,129 +77,129 @@ def CheckMissplacements(Board,Solver=0):
 
 def FillCandidates(Board):
     #Fill in naked singles and makes a list of possible values for each cell
-    PossibleList=[""]*81
+    PossibleList=[""] * 81
 
     for i in range(81):
-        if Board[i][1]==1:
-            PossibleList[i]=[Board[i][0]]
+        if Board[i][1] == 1:
+            PossibleList[i] = [Board[i][0]]
         else:
-            PossibleList[i]=[]
+            PossibleList[i] = []
             for j in range(1,10):
-                Board[i][0]=j
-                if not CheckMissplacements(Board,1)==-1:
+                Board[i][0] = j
+                if not CheckMissplacements(Board,1) == -1:
                     PossibleList[i].append(j)
-            if len(PossibleList[i])==1:
-                Board[i][0]=PossibleList[i][0]
-                Board[i][1]=1
+            if len(PossibleList[i]) == 1:
+                Board[i][0] = PossibleList[i][0]
+                Board[i][1] = 1
             else:
-                Board[i][0]=""
+                Board[i][0] = ""
     return (PossibleList)
 
 def FindHiddenSingles(PossibleList,Board):
     #Check each row, collumn and block, and if a number only is candidate in one cell, it means that it must be that cell
     #Blocks:
-    Changed=0
+    Changed = 0
     for x in range(3):
         for y in range(3):
-            for num in range(1,10): #check each number in this block
-                cellList=[]
+            for num in range(1, 10): #check each number in this block
+                cellList = []
                 for i in range(3):
                     for j in range(3):
-                        if PossibleList[(3*x+i)*9+(3*y+j)].count(num)==1:
+                        if PossibleList[(3*x+i)*9+(3*y+j)].count(num) == 1:
                             cellList.append((3*x+i)*9+(3*y+j))
-                if len(cellList)==1:
-                    if Board[cellList[0]][0]=="":
-                        Board[cellList[0]][0]=num
-                        Board[cellList[0]][1]=1
-                        PossibleList[cellList[0]]=[num]
-                        Changed=1
+                if len(cellList) == 1:
+                    if Board[cellList[0]][0] == "":
+                        Board[cellList[0]][0] = num
+                        Board[cellList[0]][1] = 1
+                        PossibleList[cellList[0]] = [num]
+                        Changed = 1
                         if Graphics:
                             DrawSolvingBoard(PossibleList)
                         #print "blok, num :"+str(num)+" celle "+str(cellList[0])
     #rows
     for x in range(9):
         for num in range(1,10):
-            cellList=[]
+            cellList = []
             for y in range(9):
-                if PossibleList[x*9+y].count(num)==1:
+                if PossibleList[x*9+y].count(num) == 1:
                     cellList.append(x*9+y)
-            if len(cellList)==1:
-                if Board[cellList[0]][0]=="":
-                    Board[cellList[0]][0]=num
-                    Board[cellList[0]][1]=1
-                    PossibleList[cellList[0]]=[num]
-                    Changed=1
+            if len(cellList) == 1:
+                if Board[cellList[0]][0] == "":
+                    Board[cellList[0]][0] = num
+                    Board[cellList[0]][1] = 1
+                    PossibleList[cellList[0]] = [num]
+                    Changed = 1
                     if Graphics:
                         DrawSolvingBoard(PossibleList)
                     #print "raekke, num :"+str(num)+" celle"+str(cellList[0])
     #Collumns
     for y in range(9):
         for num in range(1,10):
-            cellList=[]
+            cellList = []
             for x in range(9):
-                if PossibleList[x*9+y].count(num)==1:
+                if PossibleList[x*9+y].count(num) == 1:
                     cellList.append(x*9+y)
-            if len(cellList)==1:
-                if Board[cellList[0]][0]=="":
-                    Board[cellList[0]][0]=num
-                    Board[cellList[0]][1]=1
-                    PossibleList[cellList[0]]=[num]
-                    Changed=1
+            if len(cellList) == 1:
+                if Board[cellList[0]][0] == "":
+                    Board[cellList[0]][0] = num
+                    Board[cellList[0]][1] = 1
+                    PossibleList[cellList[0]] = [num]
+                    Changed = 1
                     if Graphics:
                         DrawSolvingBoard(PossibleList)
-                        
+
                     #print "kollone, num :"+str(num)+" celle"+str(cellList[0])
     return Changed
 
 def FindNakedSingles(PossibleList,Board):
-    check=1
-    Changed=0
-    while check==1:
-        check=0
+    check = 1
+    Changed = 0
+    while check == 1:
+        check = 0
         for i in range(81):
-            if not Board[i][1]==1:
-                if len(PossibleList[i])==1: #We have found a naked single
-                    Changed=1
-                    Board[i][0]=PossibleList[i][0]
-                    Board[i][1]=1
-                    Changed=1
-                    check=1
+            if not Board[i][1] == 1:
+                if len(PossibleList[i]) == 1: #We have found a naked single
+                    Changed = 1
+                    Board[i][0] = PossibleList[i][0]
+                    Board[i][1] = 1
+                    Changed = 1
+                    check = 1
                     if Graphics:
                         DrawSolvingBoard(PossibleList)
     return Changed
-                    
-                            
+
+
 def FindNakedPairsTripplesQuads(PossibleList):
     #If two cells in a group (row, collum, block) contains the same two candidates, these candidates can be removed from the rest of the cells in the group
     #loop through all cells, searching for a cell with two candidates
     Changed=0
     for checking in range(2,5):
         for i in range(81):
-            if len(PossibleList[i])==checking:
-                current=PossibleList[i]
+            if len(PossibleList[i]) == checking:
+                current = PossibleList[i]
                 #if we find one, search through block, row and collum for the same pair.
-                row=i%9
-                collumn=i/9
+                row = i%9
+                collumn = i/9
                 #search through row
-                cellList=[i]
+                cellList = [i]
                 for l in range(9):
-                    if not row+l*9==i:
-                        numbersfound=0
+                    if not row+l*9 == i:
+                        numbersfound = 0
                         for candidate in current:
-                            if PossibleList[row+l*9].count(candidate)>0:
-                                numbersfound+=1
-                        if numbersfound==len(PossibleList[row+l*9]):
+                            if PossibleList[row+l*9].count(candidate) > 0:
+                                numbersfound += 1
+                        if numbersfound == len(PossibleList[row+l*9]):
                             cellList.append(row+l*9)
-                       
-                if len(cellList)==checking: #we have found a naked pair/tripple/quad.
+
+                if len(cellList) == checking: #we have found a naked pair/tripple/quad.
                     for l in range(9):
-                        if not cellList.count(row+l*9)>0: #check if we should delete in this cell
+                        if not cellList.count(row+l*9) > 0: #check if we should delete in this cell
                             for candidate in current:
-                                if PossibleList[row+l*9].count(candidate)==1:
+                                if PossibleList[row+l*9].count(candidate) == 1:
                                     PossibleList[row+l*9].remove(candidate)
-                                    Changed=1
+                                    Changed = 1
                 #search through collumn
-                cellList=[i]
+                cellList = [i]
                 for l in range(9):
                     if not collumn*9+l==i:
                         numbersfound=0
@@ -211,7 +208,7 @@ def FindNakedPairsTripplesQuads(PossibleList):
                                 numbersfound+=1
                         if numbersfound==len(PossibleList[collumn*9+l]):
                             cellList.append(collumn*9+l)
-                        
+
                 if len(cellList)==checking: #we have found a naked pair/tripple/quad.
                     for l in range(9):
                         if not cellList.count(collumn*9+l)>0: #check if we should delete in this cell
@@ -233,7 +230,7 @@ def FindNakedPairsTripplesQuads(PossibleList):
                                     numbersfound+=1
                             if numbersfound==len(PossibleList[(blockX*3+x)*9+(blockY*3+y)]):
                                 cellList.append((blockX*3+x)*9+(blockY*3+y))
-                            
+
                 if len(cellList)==checking: #we have found a naked pair/tripple/quad.
                     for x in range(3):
                         for y in range(3):
@@ -242,8 +239,8 @@ def FindNakedPairsTripplesQuads(PossibleList):
                                     if PossibleList[(blockX*3+x)*9+(blockY*3+y)].count(candidate)==1:
                                         PossibleList[(blockX*3+x)*9+(blockY*3+y)].remove(candidate)
                                         Changed=1
-    return Changed                              
-    
+    return Changed
+
 def FindHiddenPairs(PossibleList):
     #This find cells in unit, where to cells are the only ones to contain two specific candidates
     Changed=0
@@ -270,7 +267,7 @@ def FindHiddenPairs(PossibleList):
                             PossibleList[numlist[1][i][0]]=[l+1,i+1]
                             PossibleList[numlist[1][i][1]]=[l+1,i+1]
                             Changed=1
-    #find in rows 
+    #find in rows
     for y in range(9):
         numlist=[[],[]]
         for num in range(1,10):
@@ -319,8 +316,8 @@ def FindHiddenPairs(PossibleList):
                                 PossibleList[numlist[1][i][1]]=[l+1,i+1]
                                 Changed=1
     return Changed
-                           
-                            
+
+
 def FindHiddenTrippels(PossibleList):
     pass
     #May Be implemented in the future
@@ -347,7 +344,7 @@ def FindPointingPairs(PossibleList):
                     SameCollumn=1
                     row=CellList[0][0]
                     collumn=CellList[0][1]
-                    
+
                     for cell in CellList[1:]:
                         if not cell[0]==row:
                             SameRow=0
@@ -383,9 +380,9 @@ def FindPointingPairs(PossibleList):
                         #    print cell
                         #print "Nummer="+str(num)
     return Changed
-                         
-                        
-            
+
+
+
 def PrepareBoard(Board):
     PossibleList=FillCandidates(Board)
     while True:
@@ -393,9 +390,10 @@ def PrepareBoard(Board):
             naked=FindNakedSingles(PossibleList,Board)
             hidden=FindHiddenSingles(PossibleList,Board)
             #SolvingBoard=checker[0]
-            #print "naked : "+str(naked)
-            #print "CrossCheck: "+str(hidden)
-            
+            if Verbose:
+                print "naked : "+str(naked)
+                print "CrossCheck: "+str(hidden)
+
             if not (hidden==1 or naked==1):
                 break
             else:
@@ -416,33 +414,35 @@ def PrepareBoard(Board):
             if  (TempList==PossibleList):
                 break
             else:
-                #print "Found Naked or Hidden groups or pointing pairs"
+                if Verbose:
+                    print "Found Naked or Hidden groups or pointing pairs"
                 if Graphics:
                     DrawSolvingBoard(PossibleList)
-                
+
         naked=FindNakedSingles(PossibleList,Board)
         hidden=FindHiddenSingles(PossibleList,Board)
-        #print "naked : "+str(naked)
-        #print "CrossCheck: "+str(hidden)
+        if Verbose:
+            print "naked : "+str(naked)
+            print "CrossCheck: "+str(hidden)
         if not(hidden==1 or naked==1):
             break
         else:
                 PossibleList=FillCandidates(Board)
 
-        
-            
+
+
     #for i in range(9):
     #    print PossibleList[(i*9):((i+1)*9)]
-        
+
     #print ""
     #print Board
     return(Board,PossibleList)
-    
+
 def CheckFaultyBoard(PossibleList):
     for candidates in PossibleList:
         if len(candidates)==0:
             return -1
-    
+
     return 0
 
 
@@ -458,15 +458,16 @@ def BruteForce(PossibleList,SolvingBoard):
         if Jumps%200==0:
             if Graphics:
                 DrawSolvingBoard(PossibleList,SolvingBoard) #For fancy graphics and the lulz
-                #print "Jumps = "+str(Jumps)
+            if Verbose:
+                print "Jumps = "+str(Jumps)
         while True: #add 1 to currentcell, and keep doing to we come to a uncertain cell
             CurrentCell+=1
             if CurrentCell>80:
                 #return, the board is now solved
-                #Return jumps too    
+                #Return jumps too
                 SolvingBoard.append(Jumps)
                 return SolvingBoard
-                
+
             if SolvingBoard[CurrentCell][1]==0: #break incrementing loop if we reach an unsolved cell
                 break
         SolvingBoard[CurrentCell][2]=0
@@ -482,7 +483,7 @@ def BruteForce(PossibleList,SolvingBoard):
             #print CheckMissplacements(SolvingBoard,1)
             #print SolvingBoard
             if CheckMissplacements(SolvingBoard,1)==-1 or LastNotValid: #if cell don't fit, or we tried this before, we try the next possible value for the cell
-                
+
                 LastNotValid=0
                 SolvingBoard[CurrentCell][2]+=1
                 if not SolvingBoard[CurrentCell][2]+1 > len(PossibleList[CurrentCell]):
@@ -500,18 +501,17 @@ def BruteForce(PossibleList,SolvingBoard):
                 break
 
 
-def SolveBoard():
+def SolveBoard(Board):
     Solved=0
     #Here we solve the board
     #We use bruteforce for now. May be optimised later when working
     #first we copy boardnumbers
     SolvingBoard=[""]*81
-    for i in range(9):
-        for j in range(9):
-            if not BoardNumbers[i][j]=="":
-                SolvingBoard[i*9+j]=[BoardNumbers[i][j],1,0]
+    for i in range(81):
+            if not BoardNumbers[i]=="":
+                SolvingBoard[i]=[BoardNumbers[i],1,0]
             else:
-                SolvingBoard[i*9+j]=["",0,0]
+                SolvingBoard[i]=["",0,0]
 
 
 #We have now copied in the entered board. Solvingboard is now of a list of list.
@@ -525,16 +525,16 @@ def SolveBoard():
     #We find some easy cells and make a list of candidates for each cell
     Temp=PrepareBoard(SolvingBoard)
     PossibleList=Temp[1]
-    SolvingBoard=Temp[0] 
+    SolvingBoard=Temp[0]
     if (CheckFaultyBoard(PossibleList)==-1): #check if a cell have no candidate
         return -1
-    
+
     #brute force part
     #Here we use brute force to solve for the remaining cells.
 
     SolvedBoard=BruteForce(PossibleList,SolvingBoard)
     return SolvedBoard
-      
+
 
 
 def GenerateBoard(difficulty):
@@ -550,7 +550,7 @@ def GenerateBoard(difficulty):
     SolvingBoard=[]
     for i in range(81):
         SolvingBoard.append(["",0,0])
-    
+
     GeneratedBoard=BruteForce(CandidateList,SolvingBoard)
     if not GeneratedBoard==-1:
     #    print GeneratedBoard[-1]
@@ -561,8 +561,8 @@ def GenerateBoard(difficulty):
     #Now we remove cells until the board only contains the number of cells specified in difficulty
     while True:
         GeneratedBoard[random.randint(0,80)]=""
-    
-    
+
+
         filled=0
         for i in range(81):
             if GeneratedBoard[i] in (1,2,3,4,5,6,7,8,9):
@@ -570,16 +570,16 @@ def GenerateBoard(difficulty):
         if filled<=difficulty:
             break
     return GeneratedBoard
- 
-    
-    
-    
-    
 
 
 
 
-def DrawBoard(Solver=-1):
+
+
+
+
+
+def DrawBoard(Board,Solver=-1):
     screen.fill(BACKGROUNDCOLOR)
     #Color the selected field
     pygame.draw.rect(screen,SELECTEDCOLOR,pygame.Rect((SelectedField[0]*SCREENSIZE[0]/9,SelectedField[1]*SCREENSIZE[1]/9),(SCREENSIZE[0]/9+1,SCREENSIZE[1]/9+1)))
@@ -594,10 +594,9 @@ def DrawBoard(Solver=-1):
             pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[1])/9*(x+1)))
 
     #Draw numbers on board
-    for x in range(9):
-        for y in range(9):
-            text=font.render(str(BoardNumbers[x][y]),True,PlacedTextColor)
-            screen.blit(text,(int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*(y+0.5)-text.get_height() / 2)))
+    for i in range(81):
+            text=font.render(str(Board[i]),True,PlacedTextColor)
+            screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9)+0.5)-text.get_height() / 2)))
             #print int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2)
             #print int(float(SCREENSIZE[0])/9*(y+0.5)-text.get_height() / 2)
     if Solver==-1:
@@ -631,7 +630,7 @@ def DrawBoard(Solver=-1):
 
     pygame.display.flip()
 
-def DrawSolvedBoard(Board):
+def DrawSolvedBoard(solvedBoard,enteredBoard):
     screen.fill(BACKGROUNDCOLOR)
     #Color the selected field
     pygame.draw.rect(screen,SELECTEDCOLOR,pygame.Rect((SelectedField[0]*SCREENSIZE[0]/9,SelectedField[1]*SCREENSIZE[1]/9),(SCREENSIZE[0]/9+1,SCREENSIZE[1]/9+1)))
@@ -645,7 +644,7 @@ def DrawSolvedBoard(Board):
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]))
             pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[1])/9*(x+1)))
 
-    if Board==-1: #We could not solve the board
+    if solvedBoard==-1: #We could not solve the board
 
         font2=  pygame.font.SysFont(FONTUSED, int(ScaleFont*float(FONTBASIS)/8))
         text= font2.render("Could not Solve",True,(255,0,0))
@@ -655,17 +654,16 @@ def DrawSolvedBoard(Board):
         #user-entered values should be black, logicsolved values should be orange, bruteforce values should be blue
         for i in range(81):
             #make the text
-            if Board[i][1]==1:
-                text=font.render(str(Board[i][0]),True,LogicSolveColor) #make orange
+            if solvedBoard[i][1]==1:
+                text=font.render(str(solvedBoard[i][0]),True,LogicSolveColor) #make orange
             else:
-                text=font.render(str(Board[i][0]),True,BruteSolveColor) #make blue
+                text=font.render(str(solvedBoard[i][0]),True,BruteSolveColor) #make blue
             #Draw
             screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9)+0.5)-text.get_height() / 2)))
             #Draw userentered numbers black
-        for x in range(9):
-            for y in range(9):
-                text=font.render(str(BoardNumbers[x][y]),True,PlacedTextColor)
-                screen.blit(text,(int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*(y+0.5)-text.get_height() / 2)))
+        for i in range(81):
+                text=font.render(str(enteredBoard[i]),True,PlacedTextColor)
+                screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9)+0.5)-text.get_height() / 2)))
     pygame.display.flip()
 
 def DrawSolvingBoard(PossibleList,Board=0):
@@ -708,36 +706,41 @@ def DrawSolvingBoard(PossibleList,Board=0):
                     text=candidatefont.render(str(candidate),True,LogicSolveColor)
 
                     screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
-                
+
             #Draw
             if Board[i][1]==1 or not Board[i][0]=="":
                 screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9)+0.5)-text.get_height() / 2)))
-        #Draw user entered numbers black        
-    for x in range(9):
-        for y in range(9):
-            text=font.render(str(BoardNumbers[x][y]),True,PlacedTextColor)
-            screen.blit(text,(int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*(y+0.5)-text.get_height() / 2)))
+        #Draw user entered numbers black
+    for i in range(81):
+        text=font.render(str(BoardNumbers[i]),True,PlacedTextColor)
+        screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9)+0.5)-text.get_height() / 2)))
     pygame.display.flip()
     #pygame.time.wait(500)
     #print "Drew"
 def PrintBoard(Board): #Prints board to stdout
     for i in range(9):
         for j in Board[(i*9):((i+1)*9)]:
-            if j in (1,2,3,4,5,6,7,8,9): 
+            if j in (1,2,3,4,5,6,7,8,9):
                 print str(j)+" ",
             else:
                 print ". ",
-        print 
-    
-    
-BoardNumbers=[[""]*9 for i in range(9)]
-Graphics=1
+        print
 
+
+BoardNumbers=[""] * 81
+Graphics=1
+Verbose=0
 if len(sys.argv)>1: #If given argument, run in commandline only
     Graphics=0
     #The argument should be a board of the same format as the savefiles
-    #e.g. ......1.....6..7.8..4........67.1......4...9...5....4..8..9.2..72..8........5..3. 
+    #e.g. ......1.....6..7.8..4........67.1......4...9...5....4..8..9.2..72..8........5..3.
     if sys.argv[1]=="--solve":
+        #try to set verbose
+        try:
+            if sys.argv[4]=="--verbose" or sys.argv[4]=="-v":
+                Verbose=1
+        except IndexError:
+            pass
         try:
             GivenBoard=sys.argv[2]
             #Put Board into BoardNumbers
@@ -746,41 +749,39 @@ if len(sys.argv)>1: #If given argument, run in commandline only
                 if char in ('0','1','2','3','4','5','6','7','8','9','.'):
                     if current >80:
                         break   #Break if we reach board limit
-                    row=current/9
-                    collumn=current%9
-                    if not char in ('.','0'):
-                        BoardNumbers[row][collumn]=int(char)
+                    
+                    if char in ("1","2","3","4","5","6","7", "8", "9"):
+                        BoardNumbers[current]=int(char)
                     else:
-                        BoardNumbers[row][collumn]=""
+                        BoardNumbers[current]=""
                 current+=1
-        
             #Solve
             Ready=CheckMissplacements(BoardNumbers,0)
             #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
             numbers=[]
-            for i in range(9):
-                for j in range(9):
-                    numbers.append(BoardNumbers[i][j])
+            for i in range(81):
+                    numbers.append(BoardNumbers[i])
             enteredNumbers=81-numbers.count("")
             #if enteredNumbers<=-1:
             #    Ready=(4,enteredNumbers)
             #print Ready #debug
             if Ready==0:
                  #print SolveBoard()
-                SolvedBoard=SolveBoard()
-                if not SolvedBoard==-1:                  
-                    #print  SolvedBoard[-1]
-                    Temp=[""]*81           
+                SolvedBoard=SolveBoard(BoardNumbers)
+                if not SolvedBoard==-1:
+                    if Verbose:
+                        print  SolvedBoard[-1]
+                    Temp=[""]*81
                     #Print the solved Board
                     for i in range(81):
                         Temp[i]=SolvedBoard[i][0]
-                    
+
                     AsString=0
                     try:
                         if sys.argv[3]=="--string":
                             AsString=1
                             #output as string instead of board
-                
+
                             #Make string
                             boardstr=""
                             for cell in Temp:
@@ -796,15 +797,15 @@ if len(sys.argv)>1: #If given argument, run in commandline only
                         PrintBoard(Temp)
                 else:
                     print "The given board was not valid. It could not be solved"
-        
+
             else:
                 print "The given board was not valid. It contains two identical numbers in one unit"
         except IndexError:
             print """
 Usage:
-    PySuSolve.py [--solve or --generate][<board> or <difficulty>][--string (optional)]
+    PySuSolve.py [--solve or --generate][<board> or <difficulty>][--string (optional)][--verbose]
     Start without argument for a graphical interface"""
-    
+
     elif sys.argv[1]=="--generate":
         try:
             difficulty=int(sys.argv[2])
@@ -814,7 +815,7 @@ Usage:
                 if sys.argv[3]=="--string":
                     AsString=1
                     #output as string instead of board
-                
+
                     #Make string
                     boardstr=""
                     for cell in GeneratedBoard:
@@ -837,11 +838,11 @@ Usage:
         print """
 Usage:
     PySuSolve.py [--solve or --generate][<board> or <difficulty>][--string (optional)]
-    Start without argument for a graphical interface"""            
-            
-    
+    Start without argument for a graphical interface"""
+
+
     sys.exit()
-    
+
 
 import pygame
 from pygame.locals import *
@@ -856,9 +857,10 @@ icon=pygame.image.load(os.path.dirname(os.path.realpath(sys.argv[0]))+"/PySuSolv
 pygame.display.set_icon(icon)
 font = pygame.font.SysFont(FONTUSED, int(ScaleFont*float(FONTBASIS)/12))
 SelectedField=[0,0]
-DrawBoard()
+DrawBoard(BoardNumbers)
 Enterpressed=0
 clock=pygame.time.Clock()
+Verbose=1
 
 while 1:
 
@@ -870,43 +872,41 @@ while 1:
 
         elif event.type==KEYDOWN:
             if event.key in (K_1, K_KP1) :
-                BoardNumbers[SelectedField[0]][SelectedField[1]]=1
+                BoardNumbers[SelectedField[0]+SelectedField[1]*9]=1
             elif event.key in (K_2, K_KP2):
-                BoardNumbers[SelectedField[0]][SelectedField[1]]=2
+                BoardNumbers[SelectedField[0]+SelectedField[1]*9]=2
             elif event.key in (K_3, K_KP3):
-                BoardNumbers[SelectedField[0]][SelectedField[1]]=3
+                BoardNumbers[SelectedField[0]+SelectedField[1]*9]=3
             elif event.key in (K_4, K_KP4):
-                BoardNumbers[SelectedField[0]][SelectedField[1]]=4
+                BoardNumbers[SelectedField[0]+SelectedField[1]*9]=4
             elif event.key in (K_5, K_KP5):
-                BoardNumbers[SelectedField[0]][SelectedField[1]]=5
+                BoardNumbers[SelectedField[0]+SelectedField[1]*9]=5
             elif event.key in (K_6, K_KP6):
-                BoardNumbers[SelectedField[0]][SelectedField[1]]=6
+                BoardNumbers[SelectedField[0]+SelectedField[1]*9]=6
             elif event.key in (K_7, K_KP7):
-                BoardNumbers[SelectedField[0]][SelectedField[1]]=7
+                BoardNumbers[SelectedField[0]+SelectedField[1]*9]=7
             elif event.key in (K_8, K_KP8):
-                BoardNumbers[SelectedField[0]][SelectedField[1]]=8
+                BoardNumbers[SelectedField[0]+SelectedField[1]*9]=8
             elif event.key in (K_9, K_KP9):
-                BoardNumbers[SelectedField[0]][SelectedField[1]]=9
+                BoardNumbers[SelectedField[0]+SelectedField[1]*9]=9
             elif event.key in (K_DELETE, K_0, K_KP0):
-                BoardNumbers[SelectedField[0]][SelectedField[1]]=""
+                BoardNumbers[SelectedField[0]+SelectedField[1]*9]=""
             elif event.key==K_s:
                 #Save current board to file.
                 #File is saved in ./SavedBoards/--FileName--
                 #--FileName-- is the md5sum of the board (with . used for blank)
-                
+
                 #Create string of board
                 boardstr=""
                 for i in range(81):
-                        row=i/9
-                        collumn=i%9
-                        if not BoardNumbers[row][collumn]=="":
-                            boardstr+=str(BoardNumbers[row][collumn])
+                        if not BoardNumbers[i]=="":
+                            boardstr+=str(BoardNumbers[i])
                         else:
                             boardstr+="."
-                
+
                 #Create md5sum (and condense a little. This is not collisionproof, but collisions is unlikely
                 boardmd5=base64.urlsafe_b64encode(hashlib.md5(boardstr).digest())[:-10]
-                
+
                 #open and create file
                 root=Tkinter.Tk()
                 fileName = tkFileDialog.asksaveasfilename(parent=root, initialfile=boardmd5,title="Save the board as")
@@ -916,7 +916,7 @@ while 1:
                     f=open(fileName,'w+')
                     f.write(boardstr)
                     f.close()
-                
+
             elif event.key==K_UP:
                 if not SelectedField[1]==0:
                     SelectedField[1]-=1
@@ -938,34 +938,33 @@ while 1:
                 else:
                     SelectedField[0]=0
             elif event.key==K_c: #This clears the board
-                BoardNumbers=[[""]*9 for i in range(9)]
+                BoardNumbers=[""]*81
             elif event.key in (K_RETURN, K_KP_ENTER):
                 Ready=CheckMissplacements(BoardNumbers,0)
                 #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
                 numbers=[]
-                for i in range(9):
-                    for j in range(9):
-                        numbers.append(BoardNumbers[i][j])
+                for i in range(81):
+                        numbers.append(BoardNumbers[i])
                 enteredNumbers=81-numbers.count("")
                 #if enteredNumbers<=-1:
                 #    Ready=(4,enteredNumbers)
                 #print Ready #debug
-                DrawBoard(Ready)
+                DrawBoard(BoardNumbers,Ready)
                 Enterpressed=1
                 if Ready==0:
                     #print SolveBoard()
-                    SolvedBoard=SolveBoard()
-                    DrawSolvedBoard(SolvedBoard)
+                    SolvedBoard=SolveBoard(BoardNumbers)
+                    DrawSolvedBoard(SolvedBoard,BoardNumbers)
                     #print SolvedBoard
-                    if not SolvedBoard==-1:                  
+                    if not SolvedBoard==-1:
                         print  SolvedBoard[-1]
                         Temp=[""]*81
-                        
+
                         #Print the solved Board
                         for i in range(81):
                             Temp[i]=SolvedBoard[i][0]
                         PrintBoard(Temp)
-                       
+
             elif event.key==K_l: #Load from a user chosen file
                 root=Tkinter.Tk()
                 fileName = tkFileDialog.askopenfilename(parent=root,title='Open Board')
@@ -976,30 +975,28 @@ while 1:
                 except IOError:
                     break #File does not exist
                 if len(fileName)>0:
-                    BoardNumbers=[[""]*9 for i in range(9)]
+                    BoardNumbers=[""]*81
                     current=0
                     while True:
                         thischar=file.read(1)
                         if thischar=="" or current>80:
                             break   #Break if we reach end of file
                         if thischar in ('0','1','2','3','4','5','6','7','8','9','.'):
-                            row=current/9
-                            collumn=current%9
                             if not thischar in ('.','0'):
-                                BoardNumbers[row][collumn]=int(thischar)
+                                BoardNumbers[i]=int(thischar)
                             else:
-                                BoardNumbers[row][collumn]=""
+                                BoardNumbers[i]=""
                             current+=1
                     file.close()
             elif event.key==K_g: #Generate a new board
-                if not BoardNumbers[0][0]=="" and not BoardNumbers[1][0]=="":
-                    difficulty=int(BoardNumbers[0][0])*10+int(BoardNumbers[1][0])
-                elif BoardNumbers[0][0]=="" and not BoardNumbers[1][0]=="":
-                    difficulty=int(BoardNumbers[1][0])
-                elif  BoardNumbers[0][1]=="" and not BoardNumbers[0][0]=="":
-                    difficulty= int(BoardNumbers[0][0])*10
+                if not BoardNumbers[0]=="" and not BoardNumbers[9]=="":
+                    difficulty=int(BoardNumbers[0])*10+int(BoardNumbers[9])
+                elif BoardNumbers[0]=="" and not BoardNumbers[9]=="":
+                    difficulty=int(BoardNumbers[9])
+                elif  BoardNumbers[9]=="" and not BoardNumbers[0]=="":
+                    difficulty= int(BoardNumbers[0])*10
                 else:
-                    print [BoardNumbers[0][0],BoardNumbers[1][0]]
+                    print [BoardNumbers[0],BoardNumbers[9]]
                     break
 
                 #print "difficulty: "+str(difficulty)
@@ -1009,21 +1006,20 @@ while 1:
                 #Fill The Board Into BoardNumbers
                 current=0
                 for cell in GeneratedBoard:
-                    row=current/9
-                    collumn=current%9
-                    current+=1
                     if cell=="":
-                        BoardNumbers[row][collumn]=""
+                        BoardNumbers[current]=""
                     else:
-                        BoardNumbers[row][collumn]=int(cell)
-                       
-                            
-                        
-                        
-                    
+                        BoardNumbers[current]=int(cell)
+                    current+=1
+                
+
+
+
+
+
 
             if Enterpressed==0:
-                DrawBoard()
+                DrawBoard(BoardNumbers)
             Enterpressed=0
 
 
@@ -1033,7 +1029,7 @@ while 1:
                 #print event.pos #debug
                 #print ("Field number="+str(int(float(event.pos[0])/SCREENSIZE[0]*9))+","+str(int(float(event.pos[1])/SCREENSIZE[1]*9))) #debug
                 SelectedField=[int(float(event.pos[0])/SCREENSIZE[0]*9),int(float(event.pos[1])/SCREENSIZE[1]*9)]
-                DrawBoard()
+                DrawBoard(BoardNumbers)
 
     clock.tick(60)
 
