@@ -659,11 +659,11 @@ def DrawSolvedBoard(solvedBoard,enteredBoard):
             else:
                 text=font.render(str(solvedBoard[i][0]),True,BruteSolveColor) #make blue
             #Draw
-            screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9)+0.5)-text.get_height() / 2)))
+            screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9)+0.5)-text.get_height() / 2)))
             #Draw userentered numbers black
         for i in range(81):
                 text=font.render(str(enteredBoard[i]),True,PlacedTextColor)
-                screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9)+0.5)-text.get_height() / 2)))
+                screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9)+0.5)-text.get_height() / 2)))
     pygame.display.flip()
 
 def DrawSolvingBoard(PossibleList,Board=0):
@@ -685,13 +685,13 @@ def DrawSolvingBoard(PossibleList,Board=0):
                 #make the text
                 text=font.render(str(PossibleList[i][0]),True,LogicSolveColor) #make orange
                 #Draw
-                screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9)+0.5)-text.get_height() / 2)))
+                screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9)+0.5)-text.get_height() / 2)))
             elif not len(PossibleList[i])==0:
                 #draw the possible candidates
                 for candidate in PossibleList[i]:
                     text=candidatefont.render(str(candidate),True,LogicSolveColor)
 
-                    screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
+                    screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
 
     else: #We are bruteforcing
         for i in range(81):
@@ -705,15 +705,15 @@ def DrawSolvingBoard(PossibleList,Board=0):
                 for candidate in PossibleList[i]:
                     text=candidatefont.render(str(candidate),True,LogicSolveColor)
 
-                    screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
+                    screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
 
             #Draw
             if Board[i][1]==1 or not Board[i][0]=="":
-                screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9)+0.5)-text.get_height() / 2)))
+                screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9)+0.5)-text.get_height() / 2)))
         #Draw user entered numbers black
     for i in range(81):
         text=font.render(str(BoardNumbers[i]),True,PlacedTextColor)
-        screen.blit(text,(int(float(SCREENSIZE[0])/9*((i/9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i%9)+0.5)-text.get_height() / 2)))
+        screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9)+0.5)-text.get_height() / 2)))
     pygame.display.flip()
     #pygame.time.wait(500)
     #print "Drew"
@@ -989,14 +989,14 @@ while 1:
                             current+=1
                     file.close()
             elif event.key==K_g: #Generate a new board
-                if not BoardNumbers[0]=="" and not BoardNumbers[9]=="":
-                    difficulty=int(BoardNumbers[0])*10+int(BoardNumbers[9])
-                elif BoardNumbers[0]=="" and not BoardNumbers[9]=="":
-                    difficulty=int(BoardNumbers[9])
-                elif  BoardNumbers[9]=="" and not BoardNumbers[0]=="":
+                if not BoardNumbers[0]=="" and not BoardNumbers[1]=="":
+                    difficulty=int(BoardNumbers[0])*10+int(BoardNumbers[1])
+                elif BoardNumbers[0]=="" and not BoardNumbers[1]=="":
+                    difficulty=int(BoardNumbers[1])
+                elif  BoardNumbers[1]=="" and not BoardNumbers[0]=="":
                     difficulty= int(BoardNumbers[0])*10
                 else:
-                    print [BoardNumbers[0],BoardNumbers[9]]
+                    print [BoardNumbers[0],BoardNumbers[1]]
                     break
 
                 #print "difficulty: "+str(difficulty)
