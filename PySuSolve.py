@@ -19,6 +19,31 @@ if SCREENSIZE[0] > SCREENSIZE[1]:
 else:
     FONTBASIS = SCREENSIZE[0]
 
+def ChooseSolvingAlgorithm(CurrentState):
+    #Show an dialog box where the user can choose which solving algorithm(s) to use
+    #Currentstate is a list with the current choosen values.
+    #Returns a list with the new values
+    master=Tkinter.Tk()
+    master.title("Algorithms")
+    for i in range(7):
+        CurrentState[i]=Tkinter.IntVar(master=master,value=CurrentState[i])
+        
+    Tkinter.Label(master,text="Which solving algorithm(s)\nshould be used").grid(row=0,sticky=Tkinter.W) #Title, left alligned (sticky is allignment, W is west
+    Tkinter.Checkbutton(master,text="Find Candidates\n (With out this, only bruteforce will work)",variable=CurrentState[0]).grid(row=1,sticky=Tkinter.W) #With this as zero, only burteforcing will work. all cells will have all candidates (unless they are user-entered)
+    Tkinter.Checkbutton(master,text="Find Naked Singles",variable=CurrentState[1]).grid(row=2,sticky=Tkinter.W) #find naked singles?
+    Tkinter.Checkbutton(master,text="Find Hidden Singles",variable=CurrentState[2]).grid(row=3,sticky=Tkinter.W) #find hidden singles?
+    Tkinter.Checkbutton(master,text="Find Naked Pairs, Tripples or Quads",variable=CurrentState[3]).grid(row=4,sticky=Tkinter.W)
+    Tkinter.Checkbutton(master,text="Find Hidden Pairs",variable=CurrentState[4]).grid(row=5,sticky=Tkinter.W)
+    Tkinter.Checkbutton(master,text="Find Pointing Pairs",variable=CurrentState[5]).grid(row=6,sticky=Tkinter.W)
+    Tkinter.Checkbutton(master,text="Use Bruteforce",variable=CurrentState[6]).grid(row=7,sticky=Tkinter.W)
+    Tkinter.Button(master,text="Ok",command=master.quit).grid(row=8)
+    master.mainloop()
+    for i in range(7):
+        CurrentState[i]=CurrentState[i].get()
+    master.withdraw()
+    return CurrentState    
+            
+    
 
 def CheckMissplacements(Board, Solver = 0):
     #checks if the numbers is correctly placed on the board so the solving can begin. e.g. There must not be the same number in the same block, row or collum twice.
@@ -384,19 +409,37 @@ def FindPointingPairs(PossibleList):
 
 
 def PrepareBoard(Board):
-    PossibleList=FillCandidates(Board)
+    if CurrentState[0]:
+        PossibleList=FillCandidates(Board)
+    else:
+        #We fill all non-user entered cells with all candidates
+        PossibleList=[""]*81
+        for i in range(81):
+            if Board[i][1] == 1:
+                PossibleList[i] = [Board[i][0]]
+            else:
+                PossibleList[i] = [1,2,3,4,5,6,7,8,9]
     while True:
         while True:
-            naked=FindNakedSingles(PossibleList,Board)
-            hidden=FindHiddenSingles(PossibleList,Board)
+            if CurrentState[1]:
+                naked=FindNakedSingles(PossibleList,Board)
+            else:
+                naked=0
+            if CurrentState[2]:
+                hidden=FindHiddenSingles(PossibleList,Board)
+            else:
+                hidden=0
             #SolvingBoard=checker[0]
             if Verbose:
-                print "naked : "+str(naked)
-                print "CrossCheck: "+str(hidden)
+                if CurrentState[1]:
+                    print "naked : "+str(naked)
+                if CurrentState[2]:
+                    print "CrossCheck: "+str(hidden)
 
             if not (hidden==1 or naked==1):
                 break
             else:
+                if CurrentState[0]:
                     PossibleList=FillCandidates(Board)
         while True:
             #copy PossibleList to tempboard
@@ -405,12 +448,20 @@ def PrepareBoard(Board):
                 TempList.append([])
                 for l in range(len(PossibleList[cell])):
                     TempList[cell].append(PossibleList[cell][l])
-            NakedGroups=FindNakedPairsTripplesQuads(PossibleList)
-            HiddenPairs=FindHiddenPairs(PossibleList)
-            #HiddenPairs=0 #Workaround for buggy change detection, should be fixed
-            PointingPairs=FindPointingPairs(PossibleList) #Should Be Working
-            FindHiddenTrippels(PossibleList) #Not implemented, does nothing
-            FindHiddenQuads(PossibleList) #Not implemented, does nothing
+            if CurrentState[3]:        
+                NakedGroups=FindNakedPairsTripplesQuads(PossibleList)
+            else:
+                NakedGroups=0
+            if CurrentState[4]:    
+                HiddenPairs=FindHiddenPairs(PossibleList)
+            else:
+                HiddenPairs=0
+            if CurrentState[5]:
+                PointingPairs=FindPointingPairs(PossibleList) #Should Be Working
+            else:
+                PointingPairs=0
+            #FindHiddenTrippels(PossibleList) #Not implemented, does nothing
+            #FindHiddenQuads(PossibleList) #Not implemented, does nothing
             if  (TempList==PossibleList):
                 break
             else:
@@ -418,15 +469,23 @@ def PrepareBoard(Board):
                     print "Found Naked or Hidden groups or pointing pairs"
                 if Graphics:
                     DrawSolvingBoard(PossibleList)
-
-        naked=FindNakedSingles(PossibleList,Board)
-        hidden=FindHiddenSingles(PossibleList,Board)
+        if CurrentState[1]:
+            naked=FindNakedSingles(PossibleList,Board)
+        else:
+            naked=0
+        if CurrentState[2]:
+            hidden=FindHiddenSingles(PossibleList,Board)
+        else:
+            hidden=0
         if Verbose:
-            print "naked : "+str(naked)
-            print "CrossCheck: "+str(hidden)
+            if CurrentState[1]:
+                print "naked : "+str(naked)
+            if CurrentState[2]:
+                print "CrossCheck: "+str(hidden)
         if not(hidden==1 or naked==1):
             break
         else:
+            if CurrentState[0]:        
                 PossibleList=FillCandidates(Board)
 
 
@@ -531,8 +590,14 @@ def SolveBoard(Board):
 
     #brute force part
     #Here we use brute force to solve for the remaining cells.
-
-    SolvedBoard=BruteForce(PossibleList,SolvingBoard)
+    if CurrentState[6]:
+        SolvedBoard=BruteForce(PossibleList,SolvingBoard)
+    else:
+        #We don't bruteforce.
+        #We should however check if the board is solved. if so, all SolvingBoard[i][1] should be =1
+        for cell in SolvingBoard:
+            if not cell[1]==1:
+                return -1
     return SolvedBoard
 
 
@@ -730,6 +795,7 @@ def PrintBoard(Board): #Prints board to stdout
 BoardNumbers=[""] * 81
 Graphics=1
 Verbose=0
+CurrentState=[1]*7
 if len(sys.argv)>1: #If given argument, run in commandline only
     Graphics=0
     #The argument should be a board of the same format as the savefiles
@@ -850,6 +916,7 @@ import os
 import hashlib
 import base64
 import Tkinter, Tkconstants, tkFileDialog
+import time
 pygame.init()
 screen=pygame.display.set_mode(SCREENSIZE,0,32)
 pygame.display.set_caption("PySuSolve", "PySS") #Set title
@@ -861,7 +928,6 @@ DrawBoard(BoardNumbers)
 Enterpressed=0
 clock=pygame.time.Clock()
 Verbose=1
-
 while 1:
 
 
@@ -939,6 +1005,9 @@ while 1:
                     SelectedField[0]=0
             elif event.key==K_c: #This clears the board
                 BoardNumbers=[""]*81
+            elif event.key==K_a: #make dialog to choose solving algorithm
+                CurrentState=ChooseSolvingAlgorithm(CurrentState)
+                print CurrentState
             elif event.key in (K_RETURN, K_KP_ENTER):
                 Ready=CheckMissplacements(BoardNumbers,0)
                 #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
