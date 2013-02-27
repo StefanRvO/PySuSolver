@@ -3,7 +3,7 @@ import sys
 import random
 
 
-SCREENSIZE = (500, 500)
+SCREENSIZE = (600, 600)
 FONTUSED = "Times New Roman"
 ScaleFont = 1 #Used to scale the font a bit if the different fonts are slightly different in size. 1 fits to times new roman
 BACKGROUNDCOLOR = (255, 255, 255)
@@ -23,7 +23,7 @@ else:
 def CheckMissplacements(Board, Solver = 0):
     #checks if the numbers is correctly placed on the board so the solving can begin. e.g. There must not be the same number in the same block, row or collum twice.
 #    return 0 if no errors, 1 if error in blocks, 2 if error in rows, and 3 if error in collums.
-    #If the second argument given is 1, we calculate with a 1-dimensional list. return -1 on error
+    #If the second argument given is 1,we return -1 on error
     #Check the blocks
     for x in xrange(3):
         for y in xrange(3):
@@ -610,16 +610,16 @@ def DrawBoard(Board,Solver=-1):
         #error in block, mark the error red
         text=font.render(str(Solver[1]),True,ErrorColor)
 
-        screen.blit(text,(int(float(SCREENSIZE[0])/9*((3*Solver[2]+Solver[4]/3)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((3*Solver[3]+Solver[4]%3)+0.5)-text.get_height() / 2)))
+        screen.blit(text,(int(float(SCREENSIZE[0])/9*((3*Solver[3]+Solver[4]%3)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((3*Solver[2]+Solver[4]/3)+0.5)-text.get_height() / 2)))
 
     elif Solver[0]==2:
         #Error in Row. Mark error red
         text=font.render(str(Solver[1]),True,ErrorColor)
-        screen.blit(text,(int(float(SCREENSIZE[0])/9*((Solver[2])+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((Solver[4])+0.5)-text.get_height() / 2)))
+        screen.blit(text,(int(float(SCREENSIZE[0])/9*((Solver[4])+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((Solver[2])+0.5)-text.get_height() / 2)))
     elif Solver[0]==3:
         #Error in Collum. Mark error red
         text=font.render(str(Solver[1]),True,ErrorColor)
-        screen.blit(text,(int(float(SCREENSIZE[0])/9*((Solver[4])+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((Solver[2])+0.5)-text.get_height() / 2)))
+        screen.blit(text,(int(float(SCREENSIZE[0])/9*((Solver[2])+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((Solver[4])+0.5)-text.get_height() / 2)))
     elif Solver[0]==4: #To few numbers entered
         font2=  pygame.font.SysFont(FONTUSED, int(ScaleFont*float(FONTBASIS)/12))
         text= font2.render("You only entered "+str(Solver[1])+" numbers",True,ErrorColor)
@@ -983,9 +983,9 @@ while 1:
                             break   #Break if we reach end of file
                         if thischar in ('0','1','2','3','4','5','6','7','8','9','.'):
                             if not thischar in ('.','0'):
-                                BoardNumbers[i]=int(thischar)
+                                BoardNumbers[current]=int(thischar)
                             else:
-                                BoardNumbers[i]=""
+                                BoardNumbers[current]=""
                             current+=1
                     file.close()
             elif event.key==K_g: #Generate a new board
