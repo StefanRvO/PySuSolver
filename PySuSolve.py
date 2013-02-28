@@ -830,17 +830,28 @@ def FetchInternetGeneratedBoard(boardtype):
         fetchedBlocks.append([])
         for j in range(9):
             fetchedBlocks[i].append(fetchedBoard[i*9+j])
-    #Put the blocks into final board
-    FinalBoard=[""]*81        
-    for i in range(9): #This is rather ugly (but works). should be beautified
-        if i>=3 and i<6:
-            n=2
-        elif i>=6:
-            n=4
-        else:
-            n=0
+            
+            
+    #Split each block in three parts, put in fetchedblocks
+    for i in range(9):
+        temp=fetchedBlocks[i]
+        fetchedBlocks[i]=[[],[],[]]
         for j in range(3):
-            FinalBoard[(i%3)*3+(i/3+n)*9+j*9:(i%3)*3+3+(i/3+n)*9+j*9]=fetchedBlocks[i][j*3:(j+1)*3]
+            fetchedBlocks[i][j]=temp[j*3:(j+1)*3]
+    
+    #put the split up blocks in collumns
+    fetchedCollumns=[[]]*9
+    for i in range(9):
+        for j in range(3):
+            for cell in fetchedBlocks[j+(i/3)*3][i%3][0:3]:
+                fetchedCollumns[i].append(cell)
+    
+    #Put the collumns into final board
+    FinalBoard=[]
+    for i in range(9):
+        for cell in fetchedCollumns[i]:
+            FinalBoard.append(cell)
+    
     
     #Lastly, we want to replace '"' with "", and make the char to int's
     for i in range(81):
