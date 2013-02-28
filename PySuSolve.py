@@ -42,7 +42,17 @@ def ChooseSolvingAlgorithm(CurrentState):
         CurrentState[i]=CurrentState[i].get()
     master.withdraw()
     return CurrentState    
-            
+def GetKeyEventsWSolving():
+    for event in pygame.event.get():
+        if event.type==QUIT:
+            sys.exit()
+
+        elif event.type==KEYDOWN:
+            if event.key ==K_ESCAPE:
+                print "Canceled"
+                return -1
+    return 0
+    
     
 
 def CheckMissplacements(Board, Solver = 0):
@@ -105,7 +115,7 @@ def FillCandidates(Board):
     PossibleList=[""] * 81
 
     for i in range(81):
-        if Board[i][1] == 1:
+        if not Board[i][0] =="":
             PossibleList[i] = [Board[i][0]]
         else:
             PossibleList[i] = []
@@ -408,7 +418,13 @@ def FindPointingPairs(PossibleList):
 
 
 
-def PrepareBoard(Board):
+def PrepareBoard(Board1):
+    #Make a copy of Board1 and put in board (this is neccesary for our bruteforcing
+    Board=[]
+    for i in range(81):
+        Board.append([])
+        for l in range (3):
+            Board[i].append(Board1[i][l])
     if CurrentState[0]:
         PossibleList=FillCandidates(Board)
     else:
@@ -421,6 +437,8 @@ def PrepareBoard(Board):
                 PossibleList[i] = [1,2,3,4,5,6,7,8,9]
     while True:
         while True:
+            if Graphics and GetKeyEventsWSolving()==-1:
+                return -2
             if CurrentState[1]:
                 naked=FindNakedSingles(PossibleList,Board)
             else:
@@ -504,7 +522,48 @@ def CheckFaultyBoard(PossibleList):
 
     return 0
 
+def BruteForceRandom(PossibleList,SolvingBoard):
+    #This is a specialised bruteforce. We select a random nonsolved field.
+    #At this field we fill in the first candidate.
+    #We try to solve using logic. If it fails we move on to the next candidate and tries again.
+    #If we can't solve with any of the candidates, we select another field and does the same, but now with both fields.
+    #A list containing the cells we are trying on
+    
 
+    testing=0
+    randomlist=range(81)
+    
+    random.shuffle(randomlist)
+    for i in randomlist:
+        testing+=1
+        print "Trying the "+str(testing)+" cell"
+        #RandomCell=random.randint(0,80)
+        RandomCell=i
+        if not SolvingBoard[RandomCell][1]==0:
+            continue
+        print "Selected cell " +str(RandomCell) 
+                
+    
+        for candidate in PossibleList[RandomCell]:
+            print candidate
+            SolvingBoard[RandomCell][0]=candidate
+            SolvingBoard[RandomCell][1]=1
+            TempList=PrepareBoard(SolvingBoard)
+            if candidate==8:
+                print SolvingBoard
+            Solved=1
+            for tempcell in TempList[0]:
+                if tempcell[0]=="":
+                    Solved=0
+                    print "error"
+                    break
+            if Solved:
+                print "solved"
+                return TempList[0]
+        SolvingBoard[RandomCell][0]=""
+        SolvingBoard[RandomCell][1]=0
+                       
+    return -1               
 def BruteForce(PossibleList,SolvingBoard):
 #    print PossibleList
 #    print SolvingBoard
@@ -517,6 +576,8 @@ def BruteForce(PossibleList,SolvingBoard):
         if Jumps%200==0:
             if Graphics:
                 DrawSolvingBoard(PossibleList,SolvingBoard) #For fancy graphics and the lulz
+                if(GetKeyEventsWSolving()==-1): #Cancel event occured
+                    return -2
             if Verbose:
                 print "Jumps = "+str(Jumps)
         while True: #add 1 to currentcell, and keep doing to we come to a uncertain cell
@@ -571,6 +632,7 @@ def SolveBoard(Board):
                 SolvingBoard[i]=[BoardNumbers[i],1,0]
             else:
                 SolvingBoard[i]=["",0,0]
+    print SolvingBoard
 
 
 #We have now copied in the entered board. Solvingboard is now of a list of list.
@@ -583,21 +645,28 @@ def SolveBoard(Board):
     #We prepare for bruteforce.
     #We find some easy cells and make a list of candidates for each cell
     Temp=PrepareBoard(SolvingBoard)
+    if Temp==-2:
+        return -2
     PossibleList=Temp[1]
     SolvingBoard=Temp[0]
     if (CheckFaultyBoard(PossibleList)==-1): #check if a cell have no candidate
         return -1
-
+    #Check if we are done solving
+    Solved=1
+    for cell in SolvingBoard:
+        if cell[0]=="":
+            Solved=0
+            break
+            
+    if Solved:
+        SolvingBoard.append(0)
+        return SolvingBoard
     #brute force part
     #Here we use brute force to solve for the remaining cells.
     if CurrentState[6]:
-        SolvedBoard=BruteForce(PossibleList,SolvingBoard)
-    else:
-        #We don't bruteforce.
-        #We should however check if the board is solved. if so, all SolvingBoard[i][1] should be =1
-        for cell in SolvingBoard:
-            if not cell[1]==1:
-                return -1
+        #SolvedBoard=BruteForce(PossibleList,SolvingBoard)
+        SolvedBoard=BruteForceRandom(PossibleList,SolvingBoard)
+        print SolvedBoard
     return SolvedBoard
 
 
@@ -714,6 +783,9 @@ def DrawSolvedBoard(solvedBoard,enteredBoard):
         font2=  pygame.font.SysFont(FONTUSED, int(ScaleFont*float(FONTBASIS)/8))
         text= font2.render("Could not Solve",True,(255,0,0))
         screen.blit(text,(SCREENSIZE[0]/2 -text.get_width() / 2, SCREENSIZE[1]/2 - text.get_height() /2))
+    elif solvedBoard==-2: #Solving was canceled
+        DrawBoard(enteredBoard)
+        return 0
     else:
         #Draw the solved board.
         #user-entered values should be black, logicsolved values should be orange, bruteforce values should be blue
@@ -1051,6 +1123,7 @@ while 1:
                 temp=FetchInternetGeneratedBoard((wantednumbers,difficulty))
                 if not temp==-1:
                     BoardNumbers=temp
+
             elif event.key==K_s:
                 #Save current board to file.
                 #File is saved in ./SavedBoards/--FileName--
@@ -1076,7 +1149,7 @@ while 1:
                     f=open(fileName,'w+')
                     f.write(boardstr)
                     f.close()
-
+                break
             elif event.key==K_UP:
                 if not SelectedField[1]==0:
                     SelectedField[1]-=1
@@ -1101,7 +1174,8 @@ while 1:
                 BoardNumbers=[""]*81
             elif event.key==K_a: #make dialog to choose solving algorithm
                 CurrentState=ChooseSolvingAlgorithm(CurrentState)
-                print CurrentState
+                #print CurrentState
+                break
             elif event.key in (K_RETURN, K_KP_ENTER):
                 Ready=CheckMissplacements(BoardNumbers,0)
                 #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
@@ -1119,7 +1193,7 @@ while 1:
                     SolvedBoard=SolveBoard(BoardNumbers)
                     DrawSolvedBoard(SolvedBoard,BoardNumbers)
                     #print SolvedBoard
-                    if not SolvedBoard==-1:
+                    if not SolvedBoard in (-1,-2): 
                         print  SolvedBoard[-1]
                         Temp=[""]*81
 
@@ -1151,6 +1225,7 @@ while 1:
                                 BoardNumbers[current]=""
                             current+=1
                     file.close()
+
             elif event.key==K_g: #Generate a new board
                 if not BoardNumbers[0]=="" and not BoardNumbers[1]=="":
                     difficulty=int(BoardNumbers[0])*10+int(BoardNumbers[1])
@@ -1160,8 +1235,8 @@ while 1:
                     difficulty= int(BoardNumbers[0])*10
                 else:
                     print [BoardNumbers[0],BoardNumbers[1]]
-                    break
 
+                
                 #print "difficulty: "+str(difficulty)
                 Graphics=0
                 GeneratedBoard=GenerateBoard(difficulty)
