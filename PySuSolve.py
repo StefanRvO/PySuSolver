@@ -131,7 +131,7 @@ def FillCandidates(Board):
                 Board[i][0] = ""
     return (PossibleList)
 
-def FindHiddenSingles(PossibleList,Board):
+def FindHiddenSingles(PossibleList,Board,Draw=1):
     #Check each row, collumn and block, and if a number only is candidate in one cell, it means that it must be that cell
     #Blocks:
     Changed = 0
@@ -149,7 +149,7 @@ def FindHiddenSingles(PossibleList,Board):
                         Board[cellList[0]][1] = 1
                         PossibleList[cellList[0]] = [num]
                         Changed = 1
-                        if Graphics:
+                        if Graphics and Draw:
                             DrawSolvingBoard(PossibleList)
                         #print "blok, num :"+str(num)+" celle "+str(cellList[0])
     #rows
@@ -165,7 +165,7 @@ def FindHiddenSingles(PossibleList,Board):
                     Board[cellList[0]][1] = 1
                     PossibleList[cellList[0]] = [num]
                     Changed = 1
-                    if Graphics:
+                    if Graphics and Draw:
                         DrawSolvingBoard(PossibleList)
                     #print "raekke, num :"+str(num)+" celle"+str(cellList[0])
     #Collumns
@@ -181,13 +181,13 @@ def FindHiddenSingles(PossibleList,Board):
                     Board[cellList[0]][1] = 1
                     PossibleList[cellList[0]] = [num]
                     Changed = 1
-                    if Graphics:
+                    if Graphics and Draw:
                         DrawSolvingBoard(PossibleList)
 
                     #print "kollone, num :"+str(num)+" celle"+str(cellList[0])
     return Changed
 
-def FindNakedSingles(PossibleList,Board):
+def FindNakedSingles(PossibleList,Board,Draw=1):
     check = 1
     Changed = 0
     while check == 1:
@@ -200,7 +200,7 @@ def FindNakedSingles(PossibleList,Board):
                     Board[i][1] = 1
                     Changed = 1
                     check = 1
-                    if Graphics:
+                    if Graphics and Draw:
                         DrawSolvingBoard(PossibleList)
     return Changed
 
@@ -419,7 +419,7 @@ def FindPointingPairs(PossibleList):
 
 
 
-def PrepareBoard(Board1):
+def PrepareBoard(Board1,Draw = 1):
     #Make a copy of Board1 and put in board (this is neccesary for our bruteforcing
     Board=[]
     for i in range(81):
@@ -441,11 +441,11 @@ def PrepareBoard(Board1):
             if Graphics and GetKeyEventsWSolving()==-1:
                 return -2
             if CurrentState[1]:
-                naked=FindNakedSingles(PossibleList,Board)
+                naked=FindNakedSingles(PossibleList,Board,Draw)
             else:
                 naked=0
             if CurrentState[2]:
-                hidden=FindHiddenSingles(PossibleList,Board)
+                hidden=FindHiddenSingles(PossibleList,Board,Draw)
             else:
                 hidden=0
             #SolvingBoard=checker[0]
@@ -486,14 +486,14 @@ def PrepareBoard(Board1):
             else:
                 if Verbose:
                     print "Found Naked or Hidden groups or pointing pairs"
-                if Graphics:
+                if Graphics and Draw:
                     DrawSolvingBoard(PossibleList)
         if CurrentState[1]:
-            naked=FindNakedSingles(PossibleList,Board)
+            naked=FindNakedSingles(PossibleList,Board,Draw)
         else:
             naked=0
         if CurrentState[2]:
-            hidden=FindHiddenSingles(PossibleList,Board)
+            hidden=FindHiddenSingles(PossibleList,Board,Draw)
         else:
             hidden=0
         if Verbose:
@@ -564,8 +564,10 @@ def BruteForceRandom(PossibleList,SolvingBoard):
                     for candidate4 in PossibleList[CellList[4]]:
                         SolvingBoard[CellList[4]][0]=candidate4
                         SolvingBoard[CellList[4]][1]=1
-                        TempList=PrepareBoard(SolvingBoard)
+                        TempList=PrepareBoard(SolvingBoard,0)
+                        print SolvingBoard==TempList
                         testing+=1
+                        DrawSolvingBoard(PossibleList,SolvingBoard,TempList[0],0,CellList)
                         print "Try number " +str(testing)
                         if testing>30: #may change this number.. Trying is taking too long. return and try with some other values
                             for i in range(5):
@@ -847,7 +849,9 @@ def DrawSolvedBoard(solvedBoard,enteredBoard):
                 screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9)+0.5)-text.get_height() / 2)))
     pygame.display.flip()
 
-def DrawSolvingBoard(PossibleList,Board=0):
+def DrawSolvingBoard(PossibleList,Board=0,TempBoard=0,DrawPossible=1,BruteList=0):
+    if TempBoard==0:
+        TempBoard=Board
     screen.fill(BACKGROUNDCOLOR)
     candidatefont = pygame.font.SysFont(FONTUSED, int(ScaleFont*float(FONTBASIS)/28))
         #Draw Lines
@@ -860,7 +864,7 @@ def DrawSolvingBoard(PossibleList,Board=0):
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]))
             pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[1])/9*(x+1)))
     #Draw Numbers
-    if Board==0:
+    if Board==0 and Board==TempBoard:
         for i in range(81):
             if len(PossibleList[i])==1:
                 #make the text
@@ -869,12 +873,31 @@ def DrawSolvingBoard(PossibleList,Board=0):
                 screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9)+0.5)-text.get_height() / 2)))
             elif not len(PossibleList[i])==0:
                 #draw the possible candidates
-                for candidate in PossibleList[i]:
-                    text=candidatefont.render(str(candidate),True,LogicSolveColor)
+                if DrawPossible:
+                    for candidate in PossibleList[i]:
+                        text=candidatefont.render(str(candidate),True,LogicSolveColor)
 
-                    screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
+                        screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
+    elif not Board==TempBoard:
+        for i in range(81):
+            #make the text
+            if Board[i][1]==TempBoard[i][1] and not i in BruteList:
+                text=font.render(str(Board[i][0]),True,LogicSolveColor) #make orange if constant
+            elif not TempBoard[i][0]=="":
+                text=font.render(str(TempBoard[i][0]),True,BruteSolveColor) #make blue if variable
+            #else:
+            #    #draw the possible candidates
+            #    for candidate in PossibleList[i]:
+            #        text=candidatefont.render(str(candidate),True,LogicSolveColor)
+            #
+            #        screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
 
-    else: #We are bruteforcing
+            #Draw
+            if Board[i][1]==TempBoard[i][1] or not TempBoard[i][0]=="":
+                screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9)+0.5)-text.get_height() / 2)))
+        #Draw user entered numbers black
+        
+    else: #We are bruteforcing (normal)
         for i in range(81):
             #make the text
             if Board[i][1]==1:
@@ -883,10 +906,11 @@ def DrawSolvingBoard(PossibleList,Board=0):
                 text=font.render(str(Board[i][0]),True,BruteSolveColor) #make blue if variable
             else:
                 #draw the possible candidates
-                for candidate in PossibleList[i]:
-                    text=candidatefont.render(str(candidate),True,LogicSolveColor)
-
-                    screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
+                if  DrawPossible:
+                    for candidate in PossibleList[i]:
+                        text=candidatefont.render(str(candidate),True,LogicSolveColor)
+    
+                        screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
 
             #Draw
             if Board[i][1]==1 or not Board[i][0]=="":
