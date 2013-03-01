@@ -28,15 +28,15 @@ def ChooseSolvingAlgorithm(CurrentState):
     for i in range(8):
         CurrentState[i]=Tkinter.IntVar(master=master,value=CurrentState[i])
         
-    Tkinter.Label(master,text="Which solving algorithm(s)\nshould be used").grid(row=0,sticky=Tkinter.W) #Title, left alligned (sticky is allignment, W is west
-    Tkinter.Checkbutton(master,text="Find Candidates\n (With out this, only bruteforce will work)",variable=CurrentState[0]).grid(row=1,sticky=Tkinter.W) #With this as zero, only burteforcing will work. all cells will have all candidates (unless they are user-entered)
+    Tkinter.Label(master,text="Which solving algorithm(s)\nshould be used").grid(row=0) #Title, left alligned (sticky is allignment, W is west
+    Tkinter.Checkbutton(master,text="Find Candidates (Without this, only bruteforce will work)",variable=CurrentState[0]).grid(row=1,sticky=Tkinter.W) #With this as zero, only burteforcing will work. all cells will have all candidates (unless they are user-entered)
     Tkinter.Checkbutton(master,text="Find Naked Singles",variable=CurrentState[1]).grid(row=2,sticky=Tkinter.W) #find naked singles?
     Tkinter.Checkbutton(master,text="Find Hidden Singles",variable=CurrentState[2]).grid(row=3,sticky=Tkinter.W) #find hidden singles?
     Tkinter.Checkbutton(master,text="Find Naked Pairs, Tripples or Quads",variable=CurrentState[3]).grid(row=4,sticky=Tkinter.W)
     Tkinter.Checkbutton(master,text="Find Hidden Pairs",variable=CurrentState[4]).grid(row=5,sticky=Tkinter.W)
     Tkinter.Checkbutton(master,text="Find Pointing Pairs",variable=CurrentState[5]).grid(row=6,sticky=Tkinter.W)
-    Tkinter.Checkbutton(master,text="Use guessing Bruteforce",variable=CurrentState[6]).grid(row=7,sticky=Tkinter.W)
-    Tkinter.Checkbutton(master,text="Use regular (dumb) Bruteforce",variable=CurrentState[7]).grid(row=8,sticky=Tkinter.W)
+    Tkinter.Checkbutton(master,text="Use BruteForceRandom",variable=CurrentState[6]).grid(row=7,sticky=Tkinter.W)
+    Tkinter.Checkbutton(master,text="Use BruteForce",variable=CurrentState[7]).grid(row=8,sticky=Tkinter.W)
     Tkinter.Button(master,text="Ok",command=master.quit).grid(row=9)
     master.mainloop()
     for i in range(8):
