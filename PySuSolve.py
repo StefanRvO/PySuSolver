@@ -25,7 +25,7 @@ def ChooseSolvingAlgorithm(CurrentState):
     #Returns a list with the new values
     master=Tkinter.Tk()
     master.title("Algorithms")
-    for i in range(7):
+    for i in range(8):
         CurrentState[i]=Tkinter.IntVar(master=master,value=CurrentState[i])
         
     Tkinter.Label(master,text="Which solving algorithm(s)\nshould be used").grid(row=0,sticky=Tkinter.W) #Title, left alligned (sticky is allignment, W is west
@@ -35,10 +35,11 @@ def ChooseSolvingAlgorithm(CurrentState):
     Tkinter.Checkbutton(master,text="Find Naked Pairs, Tripples or Quads",variable=CurrentState[3]).grid(row=4,sticky=Tkinter.W)
     Tkinter.Checkbutton(master,text="Find Hidden Pairs",variable=CurrentState[4]).grid(row=5,sticky=Tkinter.W)
     Tkinter.Checkbutton(master,text="Find Pointing Pairs",variable=CurrentState[5]).grid(row=6,sticky=Tkinter.W)
-    Tkinter.Checkbutton(master,text="Use Bruteforce",variable=CurrentState[6]).grid(row=7,sticky=Tkinter.W)
-    Tkinter.Button(master,text="Ok",command=master.quit).grid(row=8)
+    Tkinter.Checkbutton(master,text="Use guessing Bruteforce",variable=CurrentState[6]).grid(row=7,sticky=Tkinter.W)
+    Tkinter.Checkbutton(master,text="Use regular (dumb) Bruteforce",variable=CurrentState[7]).grid(row=8,sticky=Tkinter.W)
+    Tkinter.Button(master,text="Ok",command=master.quit).grid(row=9)
     master.mainloop()
-    for i in range(7):
+    for i in range(8):
         CurrentState[i]=CurrentState[i].get()
     master.withdraw()
     return CurrentState    
@@ -527,41 +528,68 @@ def BruteForceRandom(PossibleList,SolvingBoard):
     #At this field we fill in the first candidate.
     #We try to solve using logic. If it fails we move on to the next candidate and tries again.
     #If we can't solve with any of the candidates, we select another field and does the same, but now with both fields.
+    #We do this only down to 5 levels. It is probabaly ore effective to use the standard bruteforce if we haven't solved at this point
+    #(5 levels really means ~5^5= tries
     #A list containing the cells we are trying on
     
 
     testing=0
-    randomlist=range(81)
+    CellList=[]
+    for i in range(5):
+        while True:
+            RandomCell=random.randint(0,80)
+            if not SolvingBoard[RandomCell][1]==1 or RandomCell in CellList:
+                CellList.append(RandomCell)
+                break
     
-    random.shuffle(randomlist)
-    for i in randomlist:
-        testing+=1
-        print "Trying the "+str(testing)+" cell"
-        #RandomCell=random.randint(0,80)
-        RandomCell=i
-        if not SolvingBoard[RandomCell][1]==0:
-            continue
-        print "Selected cell " +str(RandomCell) 
+    #We have now selected the cells to try on
+    
                 
-    
-        for candidate in PossibleList[RandomCell]:
-            print candidate
-            SolvingBoard[RandomCell][0]=candidate
-            SolvingBoard[RandomCell][1]=1
-            TempList=PrepareBoard(SolvingBoard)
-            if candidate==8:
-                print SolvingBoard
-            Solved=1
-            for tempcell in TempList[0]:
-                if tempcell[0]=="":
-                    Solved=0
-                    print "error"
-                    break
-            if Solved:
-                print "solved"
-                return TempList[0]
-        SolvingBoard[RandomCell][0]=""
-        SolvingBoard[RandomCell][1]=0
+    for candidate0 in [""]+PossibleList[CellList[0]]:
+        SolvingBoard[CellList[0]][0]=candidate0
+        if not candidate0=="":
+            SolvingBoard[CellList[0]][1]=1
+        for candidate1 in [""]+PossibleList[CellList[1]]:
+            SolvingBoard[CellList[1]][0]=candidate1
+            if not candidate1=="":
+               SolvingBoard[CellList[1]][1]=1
+            for candidate2 in [""]+PossibleList[CellList[2]]:
+                SolvingBoard[CellList[2]][0]=candidate2
+                if not candidate2=="":
+                    SolvingBoard[CellList[2]][1]=1
+                for candidate3 in [""]+PossibleList[CellList[3]]:
+                    SolvingBoard[CellList[3]][0]=candidate3
+                    if not candidate3=="":
+                        SolvingBoard[CellList[3]][1]=1
+                    for candidate4 in PossibleList[CellList[4]]:
+                        SolvingBoard[CellList[4]][0]=candidate4
+                        SolvingBoard[CellList[4]][1]=1
+                        TempList=PrepareBoard(SolvingBoard)
+                        testing+=1
+                        print "Try number " +str(testing)
+                        if testing>30: #may change this number.. Trying is taking too long. return and try with some other values
+                            for i in range(5):
+                                SolvingBoard[CellList[i]][0]=""
+                                SolvingBoard[CellList[i]][1]=0
+                            return -3
+                        if TempList==-2:
+                            for i in range(5):
+                                SolvingBoard[CellList[i]][0]=""
+                                SolvingBoard[CellList[i]][1]=0
+                            return -2
+                        Solved=1
+                        for tempcell in TempList[0]:
+                            if tempcell[0]=="":
+                                Solved=0
+                                print "error"
+                                break
+                        if Solved:
+                            print "solved"
+                            TempList[0].append(testing)
+                            return TempList[0]
+    for i in range(5):
+        SolvingBoard[CellList[i]][0]=""
+        SolvingBoard[CellList[i]][1]=0
                        
     return -1               
 def BruteForce(PossibleList,SolvingBoard):
@@ -632,7 +660,7 @@ def SolveBoard(Board):
                 SolvingBoard[i]=[BoardNumbers[i],1,0]
             else:
                 SolvingBoard[i]=["",0,0]
-    print SolvingBoard
+    #print SolvingBoard
 
 
 #We have now copied in the entered board. Solvingboard is now of a list of list.
@@ -664,9 +692,25 @@ def SolveBoard(Board):
     #brute force part
     #Here we use brute force to solve for the remaining cells.
     if CurrentState[6]:
-        #SolvedBoard=BruteForce(PossibleList,SolvingBoard)
-        SolvedBoard=BruteForceRandom(PossibleList,SolvingBoard)
-        print SolvedBoard
+        tries=-30
+        SolvedBoard=-3
+        while SolvedBoard==-3: #it took too long, try to call again, and keep doing so. (We should maybe stop if we have called it a certain numbe of times, or let it run to end after some tries)
+            tries+=30
+            SolvedBoard=BruteForceRandom(PossibleList,SolvingBoard)
+        if not SolvedBoard in (-1,-2):
+            SolvedBoard[-1]+=tries
+            return SolvedBoard
+
+            
+            
+    if CurrentState[7]:
+        SolvedBoard=BruteForce(PossibleList,SolvingBoard)
+    if not 1 in CurrentState[6:]:
+        if Solved:
+            return SolvingBoard
+        else:
+            return -1
+        
     return SolvedBoard
 
 
@@ -938,7 +982,7 @@ def FetchInternetGeneratedBoard(boardtype):
 BoardNumbers=[""] * 81
 Graphics=1
 Verbose=0
-CurrentState=[1]*7
+CurrentState=[1]*8
 if len(sys.argv)>1: #If given argument, run in commandline only
     Graphics=0
     #The argument should be a board of the same format as the savefiles
