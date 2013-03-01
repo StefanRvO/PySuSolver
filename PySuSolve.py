@@ -585,7 +585,7 @@ def BruteForceRandom(PossibleList,SolvingBoard):
                                 Solved=0
                                 print "error"
                                 break
-                        if Solved:
+                        if Solved and not CheckMissplacements(TempList[0],1)==-1:
                             print "solved"
                             TempList[0].append(testing)
                             return TempList[0]
