@@ -564,12 +564,13 @@ def BruteForceRandom(PossibleList,SolvingBoard):
                     for candidate4 in PossibleList[CellList[4]]:
                         SolvingBoard[CellList[4]][0]=candidate4
                         SolvingBoard[CellList[4]][1]=1
+                        global Verbose
+                        Verbosetemp=Verbose
+                        Verbose=0
                         TempList=PrepareBoard(SolvingBoard,0)
-                        print SolvingBoard==TempList
+                        Verbose=Verbosetemp
                         testing+=1
-                        DrawSolvingBoard(PossibleList,SolvingBoard,TempList[0],0,CellList)
-                        print "Try number " +str(testing)
-                        if testing>30: #may change this number.. Trying is taking too long. return and try with some other values
+                        if testing>40: #may change this number.. Trying is taking too long. return and try with some other values
                             for i in range(5):
                                 SolvingBoard[CellList[i]][0]=""
                                 SolvingBoard[CellList[i]][1]=0
@@ -579,6 +580,8 @@ def BruteForceRandom(PossibleList,SolvingBoard):
                                 SolvingBoard[CellList[i]][0]=""
                                 SolvingBoard[CellList[i]][1]=0
                             return -2
+                        DrawSolvingBoard(PossibleList,SolvingBoard,TempList[0],0,CellList)
+                        print "Try number " +str(testing)
                         Solved=1
                         for tempcell in TempList[0]:
                             if tempcell[0]=="":
@@ -694,13 +697,23 @@ def SolveBoard(Board):
     #brute force part
     #Here we use brute force to solve for the remaining cells.
     if CurrentState[6]:
-        tries=-30
+        #We copy the board to a temp board (for displaying the correct colors when solved
+        TempBoard=[]
+        for i in range(81):
+            TempBoard.append([])
+            for l in range (3):
+                TempBoard[i].append(SolvingBoard[i][l])
+        tries=-40
         SolvedBoard=-3
         while SolvedBoard==-3: #it took too long, try to call again, and keep doing so. (We should maybe stop if we have called it a certain numbe of times, or let it run to end after some tries)
-            tries+=30
+            tries+=40
             SolvedBoard=BruteForceRandom(PossibleList,SolvingBoard)
+    
         if not SolvedBoard in (-1,-2):
             SolvedBoard[-1]+=tries
+            #Correct the values in SolvedBoard[i][1] to those of Tempboard For drawing correct colors
+            for i in range(81):
+                SolvedBoard[i][1]=TempBoard[i][1]
             return SolvedBoard
 
             
@@ -878,12 +891,15 @@ def DrawSolvingBoard(PossibleList,Board=0,TempBoard=0,DrawPossible=1,BruteList=0
                         text=candidatefont.render(str(candidate),True,LogicSolveColor)
 
                         screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
-    elif not Board==TempBoard:
+    elif not BruteList==0:
         for i in range(81):
             #make the text
+            print "drawing"
             if Board[i][1]==TempBoard[i][1] and not i in BruteList:
+                print BruteList
+                print i
                 text=font.render(str(Board[i][0]),True,LogicSolveColor) #make orange if constant
-            elif not TempBoard[i][0]=="":
+            elif not TempBoard[i][0]=="" or i in BruteList:
                 text=font.render(str(TempBoard[i][0]),True,BruteSolveColor) #make blue if variable
             #else:
             #    #draw the possible candidates
@@ -1005,6 +1021,7 @@ def FetchInternetGeneratedBoard(boardtype):
 
 BoardNumbers=[""] * 81
 Graphics=1
+global Verbose
 Verbose=0
 CurrentState=[1]*8
 if len(sys.argv)>1: #If given argument, run in commandline only
