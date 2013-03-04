@@ -53,7 +53,41 @@ def GetKeyEventsWSolving():
                 print "Canceled"
                 return -1
     return 0
+
+def EnterBoardAsString(BoardNumbers):
+    #Make a input box where the user can enter the string to a board. Shows the current board as default
     
+    
+    #Make the current board a string
+    boardstr=""
+    for i in range(81):
+        if not BoardNumbers[i]=="":
+            boardstr+=str(BoardNumbers[i])
+        else:
+            boardstr+="."
+    master=Tkinter.Tk()
+    master.title("Enter a board")
+    entrybox=Tkinter.Entry(master,width=60)
+    entrybox.grid(row=1)
+    entrybox.delete(0,Tkinter.END)
+    entrybox.insert(0,boardstr)
+    Tkinter.Button(master,text="Ok",command=master.quit).grid(row=2)
+    master.mainloop()
+    
+    boardstr=entrybox.get()
+    master.withdraw()
+    #Make string to boarnumbers format
+    current=0
+    for thischar in boardstr:
+        if thischar=="" or current>80:
+            break   #Break if we reach end of file
+        if thischar in ('0','1','2','3','4','5','6','7','8','9','.'):
+            if not thischar in ('.','0'):
+                BoardNumbers[current]=int(thischar)
+            else:
+                BoardNumbers[current]=""
+            current+=1
+    return BoardNumbers
     
 
 def CheckMissplacements(Board, Solver = 0):
@@ -523,13 +557,13 @@ def CheckFaultyBoard(PossibleList):
 
     return 0
 
-def BruteForceRandom(PossibleList,SolvingBoard):
+def BruteForceRandom(PossibleList,SolvingBoard,tryborder):
     #This is a specialised bruteforce. We select a random nonsolved field.
     #At this field we fill in the first candidate.
     #We try to solve using logic. If it fails we move on to the next candidate and tries again.
     #If we can't solve with any of the candidates, we select another field and does the same, but now with both fields.
     #We do this only down to 5 levels. It is probabaly ore effective to use the standard bruteforce if we haven't solved at this point
-    #(5 levels really means ~5^5= tries
+    #(5 levels really means ~5^5)= tries
     #A list containing the cells we are trying on
     
 
@@ -564,22 +598,24 @@ def BruteForceRandom(PossibleList,SolvingBoard):
                     for candidate4 in PossibleList[CellList[4]]:
                         SolvingBoard[CellList[4]][0]=candidate4
                         SolvingBoard[CellList[4]][1]=1
+                        testing+=1
+                        if testing>tryborder: #may change this number.. Trying is taking too long. return and try with some other values
+                            for i in range(5):
+                                SolvingBoard[CellList[i]][0]=""
+                                SolvingBoard[CellList[i]][1]=0
+                            return -3
                         global Verbose
                         Verbosetemp=Verbose
                         Verbose=0
                         TempList=PrepareBoard(SolvingBoard,0)
                         Verbose=Verbosetemp
-                        testing+=1
-                        if testing>40: #may change this number.. Trying is taking too long. return and try with some other values
-                            for i in range(5):
-                                SolvingBoard[CellList[i]][0]=""
-                                SolvingBoard[CellList[i]][1]=0
-                            return -3
                         if TempList==-2:
                             for i in range(5):
                                 SolvingBoard[CellList[i]][0]=""
                                 SolvingBoard[CellList[i]][1]=0
+                     
                             return -2
+                     
                         DrawSolvingBoard(PossibleList,SolvingBoard,TempList[0],0,CellList)
                         print "Try number " +str(testing)
                         Solved=1
@@ -703,11 +739,13 @@ def SolveBoard(Board):
             TempBoard.append([])
             for l in range (3):
                 TempBoard[i].append(SolvingBoard[i][l])
-        tries=-40
+        nextNumberofTries=10
+        tries=-nextNumberofTries
         SolvedBoard=-3
         while SolvedBoard==-3: #it took too long, try to call again, and keep doing so. (We should maybe stop if we have called it a certain numbe of times, or let it run to end after some tries)
-            tries+=40
-            SolvedBoard=BruteForceRandom(PossibleList,SolvingBoard)
+            tries+=nextNumberofTries
+            SolvedBoard=BruteForceRandom(PossibleList,SolvingBoard,nextNumberofTries)
+            nextNumberofTries+=5
     
         if not SolvedBoard in (-1,-2):
             SolvedBoard[-1]+=tries
@@ -894,10 +932,10 @@ def DrawSolvingBoard(PossibleList,Board=0,TempBoard=0,DrawPossible=1,BruteList=0
     elif not BruteList==0:
         for i in range(81):
             #make the text
-            print "drawing"
+            #print "drawing"
             if Board[i][1]==TempBoard[i][1] and not i in BruteList:
-                print BruteList
-                print i
+                #print BruteList
+                #print i
                 text=font.render(str(Board[i][0]),True,LogicSolveColor) #make orange if constant
             elif not TempBoard[i][0]=="" or i in BruteList:
                 text=font.render(str(TempBoard[i][0]),True,BruteSolveColor) #make blue if variable
@@ -1208,7 +1246,8 @@ while 1:
                 temp=FetchInternetGeneratedBoard((wantednumbers,difficulty))
                 if not temp==-1:
                     BoardNumbers=temp
-
+            elif event.key==K_b:
+                BoardNumbers=EnterBoardAsString(BoardNumbers)
             elif event.key==K_s:
                 #Save current board to file.
                 #File is saved in ./SavedBoards/--FileName--
