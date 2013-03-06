@@ -18,39 +18,39 @@ It aims to be able to solve all sodukos and as fast as possible
 ###########
 
 
-#####
-Controls
-#####
 
-<b>i:</b>
+#Controls
+
+
+##i:
 Fetches a board from the url http://kjell.haxx.se/sudoku/
 These boards are true sodukos, they have only one solution
 The difficulty of the board is choosen be the first 3 numbers entered in the interfaces left top corner.
 The first 2 is how many numbers should be on the board, and the last is difficulty when only 17 numbers is choosen (1-5)
-<b>b:</b>
+##b:
 Opens a dolog box where a board of the form 1......6..32.5.67.4....2...5..7..4..2....5. can be entered. Empty fields are . or 0.
-<b>s:</b>
+##s:
 Saves the board.
 Sugestion to safename is th md5sum (cutted down a little for shortness)
-<b>c:</b>
+##c:
 Clear the board
-<b>a:</b>
+##a:
 Opens a dialog where the used solving algorithms can be choosen
 If both bruteforce and bruteforce random is choosen, you can cancel out of bruteforcerandom by pressing ESC and continue to normal bruteforce
-<b>ENTER:</b>
+##ENTER:
 Starts the solving
-<b>l</b>
+##l:
 Loads a board
-<b>g</b>
+##g:
 Generate a board. These boards are not true sodukos, as they have no unique solutions
-<b>ESC:</b>
+##ESC:
 cancel the solving
 
 
 
-####
-General about solving
-####
+
+#General about solving
+
 
 If choosen, the solver first try to solve the board with logic, if it can't it continues to bruteforcing
 

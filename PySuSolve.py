@@ -1093,15 +1093,14 @@ if len(sys.argv)>1: #If given argument, run in commandline only
     Graphics=0
     #The argument should be a board of the same format as the savefiles
     #e.g. ......1.....6..7.8..4........67.1......4...9...5....4..8..9.2..72..8........5..3.
-    if sys.argv[1]=="--solve":
+    if "--solve" in sys.argv:
+        if "--Norandombrute" in sys.argv:
+                CurrentState=[1,1,1,1,1,1,0,1] 
         #try to set verbose
+        if "--verbose" in sys.argv or "-v" in sys.argv:
+            Verbose=1
         try:
-            if sys.argv[4]=="--verbose" or sys.argv[4]=="-v":
-                Verbose=1
-        except IndexError:
-            pass
-        try:
-            GivenBoard=sys.argv[2]
+            GivenBoard=sys.argv[sys.argv.index("--solve")+1]
             #Put Board into BoardNumbers
             current=0
             for char in GivenBoard:
@@ -1136,22 +1135,18 @@ if len(sys.argv)>1: #If given argument, run in commandline only
                         Temp[i]=SolvedBoard[i][0]
 
                     AsString=0
-                    try:
-                        if sys.argv[3]=="--string":
-                            AsString=1
-                            #output as string instead of board
-
-                            #Make string
-                            boardstr=""
-                            for cell in Temp:
-                                if cell in (1,2,3,4,5,6,7,8,9):
-                                    boardstr+=str(cell)
-                                elif cell=="":
-                                    boardstr+="."
-                            #Output string:
-                            print boardstr
-                    except IndexError:
-                        pass
+                    if "--string" in sys.argv:
+                        AsString=1
+                        #output as string instead of board
+                        #Make string
+                        boardstr=""
+                        for cell in Temp:
+                            if cell in (1,2,3,4,5,6,7,8,9):
+                                boardstr+=str(cell)
+                            elif cell=="":
+                                boardstr+="."
+                        #Output string:
+                        print boardstr
                     if not AsString:
                         PrintBoard(Temp)
                 else:
@@ -1165,13 +1160,13 @@ Usage:
     PySuSolve.py [--solve or --generate][<board> or <difficulty>][--string (optional)][--verbose]
     Start without argument for a graphical interface"""
 
-    elif sys.argv[1]=="--generate":
+    elif "--generate" in sys.argv:
         try:
-            difficulty=int(sys.argv[2])
+            difficulty=int(sys.argv[sys.argv.index("--generate")+1])
             GeneratedBoard=GenerateBoard(difficulty)
             AsString=0
             try:
-                if sys.argv[3]=="--string":
+                if "--string" in sys.argv:
                     AsString=1
                     #output as string instead of board
 
