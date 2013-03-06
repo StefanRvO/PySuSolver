@@ -53,41 +53,55 @@ def GetKeyEventsWSolving():
                 print "Canceled"
                 return -1
     return 0
-
+    
+class BoardEnterBox:
+    
+    def __init__ (self,Numbers):
+        self.BoardNumbers=Numbers
+        self.boardstr=""
+        self.master=Tkinter.Tk()
+        self.entrybox=Tkinter.Entry(self.master,width=60)
+        for i in range(81):
+            if not self.BoardNumbers[i]=="":
+                self.boardstr+=str(self.BoardNumbers[i])
+            else:
+                self.boardstr+="."
+    def MakeBox(self):
+        self.master.title("Enter a board")
+        self.entrybox.grid(row=1)
+        self.entrybox.delete(0,Tkinter.END)
+        self.entrybox.insert(0,self.boardstr)
+        Tkinter.Button(self.master,text="Ok",command=self.master.quit).grid(row=2)
+        Tkinter.Button(self.master,text="Clear",command=self.emptybox).grid(row=2,column=1)
+        self.master.mainloop()
+    def emptybox(self):
+        self.entrybox.delete(0,Tkinter.END)
+    def EndBox(self):
+        self.boardstr=self.entrybox.get()
+        self.master.withdraw()
+        #Make string to boarnumbers format
+        current=0
+        for thischar in self.boardstr:
+            if thischar=="" or current>80:
+                break   #Break if we reach end of file
+            if thischar in ('0','1','2','3','4','5','6','7','8','9','.'):
+                if not thischar in ('.','0'):
+                    self.BoardNumbers[current]=int(thischar)
+                else:
+                    self.BoardNumbers[current]=""
+                current+=1
+        return BoardNumbers
+        
+        
 def EnterBoardAsString(BoardNumbers):
     #Make a input box where the user can enter the string to a board. Shows the current board as default
     
     
-    #Make the current board a string
-    boardstr=""
-    for i in range(81):
-        if not BoardNumbers[i]=="":
-            boardstr+=str(BoardNumbers[i])
-        else:
-            boardstr+="."
-    master=Tkinter.Tk()
-    master.title("Enter a board")
-    entrybox=Tkinter.Entry(master,width=60)
-    entrybox.grid(row=1)
-    entrybox.delete(0,Tkinter.END)
-    entrybox.insert(0,boardstr)
-    Tkinter.Button(master,text="Ok",command=master.quit).grid(row=2)
-    master.mainloop()
+    Box=BoardEnterBox(BoardNumbers)
+    Box.MakeBox()
+    return Box.EndBox()
     
-    boardstr=entrybox.get()
-    master.withdraw()
-    #Make string to boarnumbers format
-    current=0
-    for thischar in boardstr:
-        if thischar=="" or current>80:
-            break   #Break if we reach end of file
-        if thischar in ('0','1','2','3','4','5','6','7','8','9','.'):
-            if not thischar in ('.','0'):
-                BoardNumbers[current]=int(thischar)
-            else:
-                BoardNumbers[current]=""
-            current+=1
-    return BoardNumbers
+    
     
 
 def CheckMissplacements(Board, Solver = 0):
@@ -607,16 +621,20 @@ def BruteForceRandom(PossibleList,SolvingBoard,tryborder):
                         global Verbose
                         Verbosetemp=Verbose
                         Verbose=0
-                        TempList=PrepareBoard(SolvingBoard,0)
+                        if not CheckMissplacements(SolvingBoard,1)==-1:
+                            TempList=PrepareBoard(SolvingBoard,0)
+                        else:
+                            TempList=(SolvingBoard,0)
                         Verbose=Verbosetemp
+                        
                         if TempList==-2:
                             for i in range(5):
                                 SolvingBoard[CellList[i]][0]=""
                                 SolvingBoard[CellList[i]][1]=0
                      
                             return -2
-                     
-                        DrawSolvingBoard(PossibleList,SolvingBoard,TempList[0],0,CellList)
+                        if Graphics:
+                            DrawSolvingBoard(PossibleList,SolvingBoard,TempList[0],0,CellList)
                         print "Try number " +str(testing)
                         Solved=1
                         for tempcell in TempList[0]:
@@ -624,10 +642,12 @@ def BruteForceRandom(PossibleList,SolvingBoard,tryborder):
                                 Solved=0
                                 print "error"
                                 break
-                        if Solved and not CheckMissplacements(TempList[0],1)==-1:
-                            print "solved"
-                            TempList[0].append(testing)
-                            return TempList[0]
+                        
+                        if Solved:
+                            if not CheckMissplacements(TempList[0],1)==-1:
+                                print "solved"
+                                TempList[0].append(testing)
+                                return TempList[0]
     for i in range(5):
         SolvingBoard[CellList[i]][0]=""
         SolvingBoard[CellList[i]][1]=0
@@ -989,18 +1009,22 @@ def FetchInternetGeneratedBoard(boardtype):
     #This method fetches an board generated by the website http://kjell.haxx.se/sudoku/
     #It's rather "hacky", haven't worked much with html manipulation and just wanted it to work
     #boardtype consists of a list with the content [numbers on board,difficultylevel]
-    #it's only with 17 numbers, that different difficulties can be choesen. Here there are 5 diffirent levels
+    #it's only with 17 numbers, that different difficulties can be chosen. Here there are 5 diffirent levels
     seed=random.randint(0,2146999999)
     numbers=boardtype[0]
     level=boardtype[1]
     url="http://kjell.haxx.se/sudoku/?action=Create%20a%20field&seed="+str(seed)+"-v3-"+str(numbers)+"-L"+str(level)
-    import urllib
+    import urllib2
+    import socket
     try:
-        f=urllib.urlopen(url)
+        f=urllib2.urlopen(url,None,5) 
         site=f.read()
         f.close()
     except IOError:
         print "Internet not available or kjell.haxx.se down"
+        return -1
+    except socket.timeout:
+        "Connection timed out"
         return -1
     fetchedBoard=[]
     fetchednumbers=0
@@ -1008,6 +1032,7 @@ def FetchInternetGeneratedBoard(boardtype):
     #we need to find the string 'value="' and then save the value after the " character.
     #When we have fund 81 values, we are done.
         if site[i]=='v' and site[i+1]=='a' and site[i+2]=='l' and site[i+3]=='u' and site[i+4]=='e' and site[i+5]=='=' and site[i+6]=='"':
+            
             fetchedBoard.append(site[i+7])
             fetchednumbers+=1
         if fetchednumbers>=81:
@@ -1019,6 +1044,7 @@ def FetchInternetGeneratedBoard(boardtype):
     #We want the numbers to be arranged in Collumns: Collumn 0 is 0-8, collumn 1 is 9-17
 
     #split fetchedBoard up in blocks
+    
     fetchedBlocks=[]
     for i in range(9):
         fetchedBlocks.append([])
@@ -1063,6 +1089,7 @@ global Verbose
 Verbose=0
 CurrentState=[1]*8
 if len(sys.argv)>1: #If given argument, run in commandline only
+                    #This part is not key functionality and should b considred unstable/unreliable
     Graphics=0
     #The argument should be a board of the same format as the savefiles
     #e.g. ......1.....6..7.8..4........67.1......4...9...5....4..8..9.2..72..8........5..3.
@@ -1307,8 +1334,8 @@ while 1:
                 for i in range(81):
                         numbers.append(BoardNumbers[i])
                 enteredNumbers=81-numbers.count("")
-                #if enteredNumbers<=-1:
-                #    Ready=(4,enteredNumbers)
+                if enteredNumbers<17:
+                    Ready=(4,enteredNumbers)
                 #print Ready #debug
                 DrawBoard(BoardNumbers,Ready)
                 Enterpressed=1
@@ -1359,6 +1386,7 @@ while 1:
                     difficulty= int(BoardNumbers[0])*10
                 else:
                     print [BoardNumbers[0],BoardNumbers[1]]
+                    break
 
                 
                 #print "difficulty: "+str(difficulty)
