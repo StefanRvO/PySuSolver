@@ -635,17 +635,20 @@ def BruteForceRandom(PossibleList,SolvingBoard,tryborder):
                             return -2
                         if Graphics:
                             DrawSolvingBoard(PossibleList,SolvingBoard,TempList[0],0,CellList)
-                        print "Try number " +str(testing)
+                        if Verbose:
+                            print "Try number " +str(testing)
                         Solved=1
                         for tempcell in TempList[0]:
                             if tempcell[0]=="":
                                 Solved=0
-                                print "error"
+                                if Verbose:
+                                    print "error"
                                 break
                         
                         if Solved:
                             if not CheckMissplacements(TempList[0],1)==-1:
-                                print "solved"
+                                if Verbose:
+                                    print "solved"
                                 TempList[0].append(testing)
                                 return TempList[0]
     for i in range(5):
@@ -1204,7 +1207,7 @@ import os
 import hashlib
 import base64
 import Tkinter, Tkconstants, tkFileDialog
-import time
+#import time
 pygame.init()
 screen=pygame.display.set_mode(SCREENSIZE,0,32)
 pygame.display.set_caption("PySuSolve", "PySS") #Set title
@@ -1396,12 +1399,6 @@ while 1:
                     else:
                         BoardNumbers[current]=int(cell)
                     current+=1
-                
-
-
-
-
-
 
             if Enterpressed==0:
                 DrawBoard(BoardNumbers)
