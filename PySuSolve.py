@@ -326,7 +326,7 @@ def FindNakedPairsTripplesQuads(PossibleList):
     return Changed
 
 def FindHiddenPairs(PossibleList):
-    #This find cells in unit, where to cells are the only ones to contain two specific candidates
+    #This find cells in units, where two cells are the only ones to contain two specific candidates
     Changed=0
     #Find in collumns
     for x in range(9):
@@ -412,7 +412,6 @@ def FindHiddenQuads(PossibleList):
     #May Be Implemented in the future
 def FindPointingPairs(PossibleList):
     #If a candidate value inside a box only exists in one row or collumn, it can be removed from the same row or collumn in other boxes.
-    #Not currently working
     Changed=0
     for x in range(3):
         for y in range(3):
