@@ -554,13 +554,6 @@ def PrepareBoard(Board1,Draw = 1):
             if CurrentState[0]:        
                 PossibleList=FillCandidates(Board)
 
-
-
-    #for i in range(9):
-    #    print PossibleList[(i*9):((i+1)*9)]
-
-    #print ""
-    #print Board
     return(Board,PossibleList)
 
 def CheckFaultyBoard(PossibleList):
@@ -1331,7 +1324,7 @@ while 1:
                 for i in range(81):
                         numbers.append(BoardNumbers[i])
                 enteredNumbers=81-numbers.count("")
-                if enteredNumbers<17:
+                if enteredNumbers<16:
                     Ready=(4,enteredNumbers)
                 #print Ready #debug
                 DrawBoard(BoardNumbers,Ready)
