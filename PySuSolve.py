@@ -33,7 +33,7 @@ def ChooseSolvingAlgorithm(CurrentState):
     Tkinter.Checkbutton(master,text="Find Naked Singles",variable=CurrentState[1]).grid(row=2,sticky=Tkinter.W) #find naked singles?
     Tkinter.Checkbutton(master,text="Find Hidden Singles",variable=CurrentState[2]).grid(row=3,sticky=Tkinter.W) #find hidden singles?
     Tkinter.Checkbutton(master,text="Find Naked Pairs, Tripples or Quads",variable=CurrentState[3]).grid(row=4,sticky=Tkinter.W)
-    Tkinter.Checkbutton(master,text="Find Hidden Pairs",variable=CurrentState[4]).grid(row=5,sticky=Tkinter.W)
+    Tkinter.Checkbutton(master,text="Find Hidden Pairs, Tripples or Quads",variable=CurrentState[4]).grid(row=5,sticky=Tkinter.W)
     Tkinter.Checkbutton(master,text="Find Pointing Pairs",variable=CurrentState[5]).grid(row=6,sticky=Tkinter.W)
     Tkinter.Checkbutton(master,text="Use BruteForceRandom",variable=CurrentState[6]).grid(row=7,sticky=Tkinter.W)
     Tkinter.Checkbutton(master,text="Use BruteForce",variable=CurrentState[7]).grid(row=8,sticky=Tkinter.W)
@@ -91,7 +91,46 @@ class BoardEnterBox:
                     self.BoardNumbers[current]=""
                 current+=1
         return BoardNumbers
+       
+       
+class NumBox:
+    
+    def __init__ (self,default):
+        self.default=default
+        self.str=str(default)
+        self.master=Tkinter.Tk()
+        self.entrybox=Tkinter.Entry(self.master,width=60)
+    def MakeBox(self):
+        self.master.title("Enter number of benchmarks")
+        self.entrybox.grid(row=1)
+        self.entrybox.delete(0,Tkinter.END)
+        self.entrybox.insert(0,self.str)
+        Tkinter.Button(self.master,text="Ok",command=self.master.quit).grid(row=2)
+        Tkinter.Button(self.master,text="Clear",command=self.emptybox).grid(row=2,column=1)
+        self.master.mainloop()
+    def emptybox(self):
+        self.entrybox.delete(0,Tkinter.END)
+    def EndBox(self):
+        self.str=self.entrybox.get()
+        self.master.withdraw()
+        #Make string to boarnumbers format
         
+        
+        return self.str
+        
+        
+def GetNumberOfBenchmarks():
+    Box=NumBox("0")
+    Box.MakeBox()
+    try:
+        benchmarknum=int(Box.EndBox())
+    except:
+        print "What you entered isn't a number"
+        benchmarknum=0
+    return benchmarknum
+        
+    
+
         
 def EnterBoardAsString(BoardNumbers):
     #Make a input box where the user can enter the string to a board. Shows the current board as default
@@ -100,7 +139,54 @@ def EnterBoardAsString(BoardNumbers):
     Box=BoardEnterBox(BoardNumbers)
     Box.MakeBox()
     return Box.EndBox()
-    
+
+
+
+
+def TransposeMatrix(Matrix):
+    NewMatrix=[[],[],[],[],[],[],[],[],[]]
+    for i in range(9):
+        for j in range(9):
+             if i+1 in Matrix[j]:
+                 NewMatrix[i].append(j+1)
+    return NewMatrix
+        
+def Matrixify(PossibleList,housetype,number):
+#Make a matrix from the possibleList
+    Matrix=[]
+    if housetype=="block":
+        for x in xrange(3):
+            for y in xrange(3):
+                Matrix.append(PossibleList[(3*(number%3)+x)*9+(3*(number/3)+y)])
+        return Matrix
+            
+    elif housetype=="row":
+        for y in range(9):
+            Matrix.append(PossibleList[number*9+y])
+        return Matrix
+            
+    elif housetype=="collumn":
+        for x in range(9):
+            Matrix.append(PossibleList[x*9+number])
+        return Matrix
+        
+def DeMatrixify(PossibleList,Matrix,housetype,number):
+    if housetype=="block":
+            
+        for x in xrange(3):
+            for y in xrange(3):
+                PossibleList[(3*(number%3)+x)*9+(3*(number/3)+y)]=Matrix[x*3+y]
+        return PossibleList
+            
+    elif housetype=="row":
+        for y in range(9):
+            PossibleList[number*9+y]=Matrix[y]
+        return PossibleList
+            
+    elif housetype=="collumn":
+        for x in range(9):
+            PossibleList[x*9+number]=Matrix[x]
+        return PossibleList
     
     
 
@@ -408,7 +494,47 @@ def FindHiddenTrippels(PossibleList):
 
 
 def FindHiddenQuads(PossibleList):
-    pass
+    Changed=0
+    for housetype in ["block","row","collumn"]:
+	    for i in range(9):
+	    	Matrix=Matrixify(PossibleList,housetype,i)
+	    	Matrix=TransposeMatrix(Matrix)
+	        for checking in range(2,5):
+		    	ChangedTemp=0
+                for j in range(9):
+                    check=0
+                    if len(Matrix[j])==checking:
+                        check=1
+                        current=Matrix[j]
+                        cellList=[j]
+                        for l in range(9):
+                            if not l==j:
+                                numbersfound=0
+                                for candidate in current:
+                                    if Matrix[l].count(candidate)>0:
+                                        numbersfound+=1
+                                if numbersfound==len(Matrix[l]):
+                                    cellList.append(l)
+                    if check:
+                        if len(cellList)==checking: 
+                            #we have found a naked pair/tripple/quad.
+                            for l in range(9):
+                                if not cellList.count(l) >0:
+                                    for candidate in current:
+                                        if Matrix[l].count(candidate)==1:
+                                            Matrix[l].remove(candidate)
+                                            Changed=1
+                                            ChangedTemp=1
+            if ChangedTemp:
+                Matrix=TransposeMatrix(Matrix)
+                PossibleList=DeMatrixify(PossibleList,Matrix,housetype,i)
+    return Changed                              
+    
+
+           
+           
+    time.sleep(9000)
+    
     #May Be Implemented in the future
 def FindPointingPairs(PossibleList):
     #If a candidate value inside a box only exists in one row or collumn, it can be removed from the same row or collumn in other boxes.
@@ -519,15 +645,13 @@ def PrepareBoard(Board1,Draw = 1):
             else:
                 NakedGroups=0
             if CurrentState[4]:    
-                HiddenPairs=FindHiddenPairs(PossibleList)
+                HiddenGroups=FindHiddenQuads(PossibleList)
             else:
-                HiddenPairs=0
+                HiddenGroups=0
             if CurrentState[5]:
                 PointingPairs=FindPointingPairs(PossibleList) #Should Be Working
             else:
                 PointingPairs=0
-            #FindHiddenTrippels(PossibleList) #Not implemented, does nothing
-            #FindHiddenQuads(PossibleList) #Not implemented, does nothing
             if  (TempList==PossibleList):
                 break
             else:
@@ -708,7 +832,6 @@ def BruteForce(PossibleList,SolvingBoard):
 def SolveBoard(Board):
     Solved=0
     #Here we solve the board
-    #We use bruteforce for now. May be optimised later when working
     #first we copy boardnumbers
     SolvingBoard=[""]*81
     for i in range(81):
@@ -1260,6 +1383,7 @@ import os
 import hashlib
 import base64
 import Tkinter, Tkconstants, tkFileDialog
+import time
 #import time
 pygame.init()
 screen=pygame.display.set_mode(SCREENSIZE,0,32)
@@ -1452,7 +1576,77 @@ while 1:
                     else:
                         BoardNumbers[current]=int(cell)
                     current+=1
-
+            elif event.key==K_f: #Benchmark from file
+                root=Tkinter.Tk()
+                fileName = tkFileDialog.askopenfilename(parent=root,title='Open Banchmark collection')
+                root.withdraw()
+                print "Loaded " +fileName
+                try:
+                    file=open(fileName,'r')
+                except IOError:
+                    break #File does not exist
+                lines=file.readlines()
+                testcount=GetNumberOfBenchmarks()
+                if testcount==0:
+                    break
+                elif testcount>lines:
+                    testcount=lines
+                testinglines=random.sample(range(len(lines)),testcount) #generate list of random lines to be tested
+                solvednumber=0
+                starttime=time.time()
+                for i in testinglines:
+                    GivenBoard=lines[i][:-1]
+                    current=0
+                    for char in GivenBoard:
+                        if char in ('0','1','2','3','4','5','6','7','8','9','.'):
+                            if current >80:
+                                break   #Break if we reach board limit
+                        
+                            if char in ("1","2","3","4","5","6","7", "8", "9"):
+                                BoardNumbers[current]=int(char)
+                            else:
+                                BoardNumbers[current]=""
+                        current+=1
+                    #Solve
+                    Ready=CheckMissplacements(BoardNumbers,0)
+                    #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
+                    numbers=[]
+                    for i in range(81):
+                            numbers.append(BoardNumbers[i])
+                    enteredNumbers=81-numbers.count("")
+                    if Ready==0:
+                        SolvedBoard=SolveBoard(BoardNumbers)
+                        if not SolvedBoard==-1:
+                            if Verbose:
+                                print  SolvedBoard[-1]
+                            Temp=[""]*81
+                            #Print the solved Board
+                            for i in range(81):
+                                Temp[i]=SolvedBoard[i][0]
+        
+                            AsString=0
+                            if "--string" in sys.argv:
+                                AsString=1
+                                #output as string instead of board
+                                #Make string
+                                boardstr=""
+                                for cell in Temp:
+                                    if cell in (1,2,3,4,5,6,7,8,9):
+                                        boardstr+=str(cell)
+                                    elif cell=="":
+                                        boardstr+="."
+                                #Output string:
+                                print boardstr
+                            if not AsString:
+                                PrintBoard(Temp)
+                            solvednumber+=1
+                            Curtime=time.time()-starttime
+                            averegatime=Curtime/solvednumber
+                            print "Boards Solved :" +str(solvednumber)
+                            print "Average time :" +str(averegatime)
+                    
+                    
+                    
             if Enterpressed==0:
                 DrawBoard(BoardNumbers)
             Enterpressed=0
