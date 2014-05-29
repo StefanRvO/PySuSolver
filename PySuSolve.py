@@ -188,15 +188,19 @@ def DeMatrixify(PossibleList,Matrix,housetype,number):
             PossibleList[x*9+number]=Matrix[x]
         return PossibleList
     
-    
+  
 
-def CheckMissplacements(Board, Solver = 0):
+def CheckMissplacements(Board,CellNum=-1, Solver = 0):
     #checks if the numbers is correctly placed on the board so the solving can begin. e.g. There must not be the same number in the same block, row or collum twice.
 #    return 0 if no errors, 1 if error in blocks, 2 if error in rows, and 3 if error in collums.
-    #If the second argument given is 1,we return -1 on error
+    #Second argument is a cell number. If given, we only check if its row collumn and block is valid
+    #If the third argument given is 1,we return -1 on error
     #Check the blocks
     for x in xrange(3):
         for y in xrange(3):
+            if not CellNum==-1:
+                x=CellNum%3
+                y=CellNum/27
             Blocknumbers=[]
             for i in range(3):
                 for j in range (3):
@@ -211,8 +215,14 @@ def CheckMissplacements(Board, Solver = 0):
                         return (1, l, x, y, Blocknumbers.index(l))
                     else:
                         return -1
+            if not CellNum==-1:
+                break
+        if not CellNum==-1:
+            break
     # Check Rows
     for x in xrange(9):
+        if not CellNum==-1:
+            x=CellNum/9
         Rownumbers = []
         for y in range(9):
             if Solver == 0:
@@ -227,8 +237,13 @@ def CheckMissplacements(Board, Solver = 0):
                     return (2, l, x, y, Rownumbers.index(l))
                 else:
                     return -1
+                    
+        if not CellNum==-1:
+            break
     #Check Collums
     for y in xrange(9):
+        if not CellNum==-1:
+            y=CellNum%9
         Collumnumbers = []
         for x in range(9):
             if Solver == 0:
@@ -242,6 +257,8 @@ def CheckMissplacements(Board, Solver = 0):
                     return (3, l, y, x, Collumnumbers.index(l))
                 else:
                     return -1
+        if not CellNum==-1:
+            break
 
     return 0
 
@@ -256,7 +273,7 @@ def FillCandidates(Board):
             PossibleList[i] = []
             for j in range(1,10):
                 Board[i][0] = j
-                if not CheckMissplacements(Board,1) == -1:
+                if not CheckMissplacements(Board,i,1) == -1:
                     PossibleList[i].append(j)
             if len(PossibleList[i]) == 1:
                 Board[i][0] = PossibleList[i][0]
@@ -411,89 +428,12 @@ def FindNakedPairsTripplesQuads(PossibleList):
                                         Changed=1
     return Changed
 
-def FindHiddenPairs(PossibleList):
-    #This find cells in units, where two cells are the only ones to contain two specific candidates
-    Changed=0
-    #Find in collumns
-    for x in range(9):
-        numlist=[[],[]]
-        for num in range(1,10):
-            cellList=[]
-            for y in range(9):
-                if PossibleList[x*9+y].count(num)==1:
-                    cellList.append(x*9+y)
-            if len(cellList)==2:
-                numlist[1].append(cellList)
-                numlist[0].append(1)
-            else:
-                numlist[1].append("")
-                numlist[0].append(0)
-        for i in range(9):
-            if numlist[0][i]:
-                current=numlist[1][i]
-                for l in range(9):
-                    if numlist[1][l]==current and not l==i: #We found a hidden pair. These candidates are the only ones which share a pair
-                        if not (PossibleList[numlist[1][i][0]]==[l+1,i+1] and PossibleList[numlist[1][i][1]]==[l+1,i+1]):
-                            PossibleList[numlist[1][i][0]]=[l+1,i+1]
-                            PossibleList[numlist[1][i][1]]=[l+1,i+1]
-                            Changed=1
-    #find in rows
-    for y in range(9):
-        numlist=[[],[]]
-        for num in range(1,10):
-            cellList=[]
-            for x in range(9):
-                if PossibleList[x*9+y].count(num)==1:
-                    cellList.append(x*9+y)
-            if len(cellList)==2:
-                numlist[1].append(cellList)
-                numlist[0].append(1)
-            else:
-                numlist[1].append("")
-                numlist[0].append(0)
-        for i in range(9):
-            if numlist[0][i]:
-                current=numlist[1][i]
-                for l in range(9):
-                    if numlist[1][l]==current and not l==i: #We found a hidden pair. These candidates are the only ones which share a pair
-                        if not (PossibleList[numlist[1][i][0]]==[l+1,i+1] and PossibleList[numlist[1][i][1]]==[l+1,i+1]):
-                            PossibleList[numlist[1][i][0]]=[l+1,i+1]
-                            PossibleList[numlist[1][i][1]]=[l+1,i+1]
-                            Changed=1
-    #Find in Blocks
-    for x in range(3):
-        for y in range(3):
-            numlist=[[],[]]
-            for num in range(1,10): #check each number in this block
-                cellList=[]
-                for i in range(3):
-                    for j in range(3):
-                        if PossibleList[(3*x+i)*9+(3*y+j)].count(num)==1:
-                            cellList.append((3*x+i)*9+(3*y+j))
-                if len(cellList)==2:
-                    numlist[1].append(cellList)
-                    numlist[0].append(1)
-                else:
-                    numlist[1].append("")
-                    numlist[0].append(0)
-            for i in range(9):
-                if numlist[0][i]:
-                    current=numlist[1][i]
-                    for l in range(9):
-                        if numlist[1][l]==current and not l==i: #We found a hidden pair. These candidates are the only ones which share a pair
-                            if not (PossibleList[numlist[1][i][0]]==[l+1,i+1] and PossibleList[numlist[1][i][1]]==[l+1,i+1]):
-                                PossibleList[numlist[1][i][0]]=[l+1,i+1]
-                                PossibleList[numlist[1][i][1]]=[l+1,i+1]
-                                Changed=1
-    return Changed
 
 
-def FindHiddenTrippels(PossibleList):
-    pass
-    #May Be implemented in the future
 
 
-def FindHiddenQuads(PossibleList):
+
+def FindHiddenPairsTripplesQuads(PossibleList):
     Changed=0
     for housetype in ["block","row","collumn"]:
 	    for i in range(9):
@@ -517,7 +457,7 @@ def FindHiddenQuads(PossibleList):
                                     cellList.append(l)
                     if check:
                         if len(cellList)==checking: 
-                            #we have found a naked pair/tripple/quad.
+                            #we have found a hidden pair/tripple/quad.
                             for l in range(9):
                                 if not cellList.count(l) >0:
                                     for candidate in current:
@@ -528,14 +468,18 @@ def FindHiddenQuads(PossibleList):
             if ChangedTemp:
                 Matrix=TransposeMatrix(Matrix)
                 PossibleList=DeMatrixify(PossibleList,Matrix,housetype,i)
-    return Changed                              
+    if Changed:
+        return [PossibleList,Changed]
+    else:
+        return ["",Changed]                             
     
 
            
-           
-    time.sleep(9000)
+       
     
-    #May Be Implemented in the future
+
+
+            
 def FindPointingPairs(PossibleList):
     #If a candidate value inside a box only exists in one row or collumn, it can be removed from the same row or collumn in other boxes.
     Changed=0
@@ -644,8 +588,12 @@ def PrepareBoard(Board1,Draw = 1):
                 NakedGroups=FindNakedPairsTripplesQuads(PossibleList)
             else:
                 NakedGroups=0
-            if CurrentState[4]:    
-                HiddenGroups=FindHiddenQuads(PossibleList)
+            if CurrentState[4]:
+                HiddenGroups=FindHiddenPairsTripplesQuads(PossibleList)
+                if HiddenGroups[1]:
+                    PossibleList=HiddenGroups[0]
+                HiddenGroups=HiddenGroups[1]
+
             else:
                 HiddenGroups=0
             if CurrentState[5]:
@@ -737,7 +685,7 @@ def BruteForceRandom(PossibleList,SolvingBoard,tryborder):
                         global Verbose
                         Verbosetemp=Verbose
                         Verbose=0
-                        if not CheckMissplacements(SolvingBoard,1)==-1:
+                        if not CheckMissplacements(SolvingBoard,-1,1)==-1:
                             TempList=PrepareBoard(SolvingBoard,0)
                         else:
                             TempList=(SolvingBoard,0)
@@ -762,7 +710,7 @@ def BruteForceRandom(PossibleList,SolvingBoard,tryborder):
                                 break
                         
                         if Solved:
-                            if not CheckMissplacements(TempList[0],1)==-1:
+                            if not CheckMissplacements(TempList[0],-1,1)==-1:
                                 if Verbose:
                                     print "solved"
                                 TempList[0].append(testing)
@@ -810,7 +758,7 @@ def BruteForce(PossibleList,SolvingBoard):
                     LastNotValid=1
             #print CheckMissplacements(SolvingBoard,1)
             #print SolvingBoard
-            if CheckMissplacements(SolvingBoard,1)==-1 or LastNotValid: #if cell don't fit, or we tried this before, we try the next possible value for the cell
+            if CheckMissplacements(SolvingBoard,-1,1)==-1 or LastNotValid: #if cell don't fit, or we tried this before, we try the next possible value for the cell
 
                 LastNotValid=0
                 SolvingBoard[CurrentCell][2]+=1
@@ -1245,7 +1193,7 @@ if len(sys.argv)>1: #If given argument, run in commandline only
                             BoardNumbers[current]=""
                     current+=1
                 #Solve
-                Ready=CheckMissplacements(BoardNumbers,0)
+                Ready=CheckMissplacements(BoardNumbers,-1,0)
                 #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
                 numbers=[]
                 for i in range(81):
@@ -1293,7 +1241,7 @@ if len(sys.argv)>1: #If given argument, run in commandline only
                         BoardNumbers[current]=""
                 current+=1
             #Solve
-            Ready=CheckMissplacements(BoardNumbers,0)
+            Ready=CheckMissplacements(BoardNumbers,-1,0)
             #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
             numbers=[]
             for i in range(81):
@@ -1503,7 +1451,7 @@ while 1:
                 #print CurrentState
                 break
             elif event.key in (K_RETURN, K_KP_ENTER):
-                Ready=CheckMissplacements(BoardNumbers,0)
+                Ready=CheckMissplacements(BoardNumbers,-1,0)
                 #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
                 numbers=[]
                 for i in range(81):
@@ -1589,8 +1537,8 @@ while 1:
                 testcount=GetNumberOfBenchmarks()
                 if testcount==0:
                     break
-                elif testcount>lines:
-                    testcount=lines
+                elif testcount>len(lines):
+                    testcount=len(lines)
                 testinglines=random.sample(range(len(lines)),testcount) #generate list of random lines to be tested
                 solvednumber=0
                 starttime=time.time()
@@ -1608,7 +1556,7 @@ while 1:
                                 BoardNumbers[current]=""
                         current+=1
                     #Solve
-                    Ready=CheckMissplacements(BoardNumbers,0)
+                    Ready=CheckMissplacements(BoardNumbers,-1,0)
                     #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
                     numbers=[]
                     for i in range(81):
