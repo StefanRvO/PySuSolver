@@ -318,7 +318,7 @@ def FillCandidates(Board,OldBoard=0,CandList=0):
 
 
 
-def FindHiddenSingles(PossibleList,Board,Draw=1):
+def FindHiddenSingles(PossibleList,Board):
     #Check each row, collumn and block, and if a number only is candidate in one cell, it means that it must be that cell
     #Blocks:
     Changed = 0
@@ -336,8 +336,6 @@ def FindHiddenSingles(PossibleList,Board,Draw=1):
                         Board[cellList[0]][1] = 1
                         PossibleList[cellList[0]] = [num]
                         Changed = 1
-                        if Graphics and Draw:
-                            DrawSolvingBoard(PossibleList)
                         #print "blok, num :"+str(num)+" celle "+str(cellList[0])
     #rows
     for x in range(9):
@@ -352,8 +350,6 @@ def FindHiddenSingles(PossibleList,Board,Draw=1):
                     Board[cellList[0]][1] = 1
                     PossibleList[cellList[0]] = [num]
                     Changed = 1
-                    if Graphics and Draw:
-                        DrawSolvingBoard(PossibleList)
                     #print "raekke, num :"+str(num)+" celle"+str(cellList[0])
     #Collumns
     for y in range(9):
@@ -368,8 +364,6 @@ def FindHiddenSingles(PossibleList,Board,Draw=1):
                     Board[cellList[0]][1] = 1
                     PossibleList[cellList[0]] = [num]
                     Changed = 1
-                    if Graphics and Draw:
-                        DrawSolvingBoard(PossibleList)
 
                     #print "kollone, num :"+str(num)+" celle"+str(cellList[0])
     return Changed
@@ -387,8 +381,6 @@ def FindNakedSingles(PossibleList,Board,Draw=1):
                     Board[i][1] = 1
                     Changed = 1
                     check = 1
-                    if Graphics and Draw:
-                        DrawSolvingBoard(PossibleList)
     return Changed
 
 
@@ -600,11 +592,11 @@ def PrepareBoard(Board1,Draw = 1):
             if Graphics and GetKeyEventsWSolving()==-1:
                 return -2
             if CurrentState[1]:
-                naked=FindNakedSingles(PossibleList,Board,Draw)
+                naked=FindNakedSingles(PossibleList,Board)
             else:
                 naked=0
             if CurrentState[2]:
-                hidden=FindHiddenSingles(PossibleList,Board,Draw)
+                hidden=FindHiddenSingles(PossibleList,Board)
             else:
                 hidden=0
             #SolvingBoard=checker[0]
@@ -618,6 +610,8 @@ def PrepareBoard(Board1,Draw = 1):
                 break
             else:
                 if CurrentState[0]:
+                    if Graphics and Draw:
+                        DrawSolvingBoard(PossibleList)
                     PossibleList=FillCandidates(Board,OldBoard,PossibleList)
         while True:
             #copy PossibleList to tempboard
@@ -650,11 +644,11 @@ def PrepareBoard(Board1,Draw = 1):
                 if Graphics and Draw:
                     DrawSolvingBoard(PossibleList)
         if CurrentState[1]:
-            naked=FindNakedSingles(PossibleList,Board,Draw)
+            naked=FindNakedSingles(PossibleList,Board)
         else:
             naked=0
         if CurrentState[2]:
-            hidden=FindHiddenSingles(PossibleList,Board,Draw)
+            hidden=FindHiddenSingles(PossibleList,Board)
         else:
             hidden=0
         if Verbose:
