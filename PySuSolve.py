@@ -33,7 +33,7 @@ def ChooseSolvingAlgorithm(CurrentState):
     Tkinter.Checkbutton(master,text="Find Naked Singles",variable=CurrentState[1]).grid(row=2,sticky=Tkinter.W) #find naked singles?
     Tkinter.Checkbutton(master,text="Find Hidden Singles",variable=CurrentState[2]).grid(row=3,sticky=Tkinter.W) #find hidden singles?
     Tkinter.Checkbutton(master,text="Find Naked Pairs, Tripples or Quads",variable=CurrentState[3]).grid(row=4,sticky=Tkinter.W)
-    Tkinter.Checkbutton(master,text="Find Hidden Pairs, Tripples or Quads",variable=CurrentState[4]).grid(row=5,sticky=Tkinter.W)
+    Tkinter.Checkbutton(master,text="Find Hidden Pairs, Tripples or Quads. Not working correctly",variable=CurrentState[4]).grid(row=5,sticky=Tkinter.W)
     Tkinter.Checkbutton(master,text="Find Pointing Pairs",variable=CurrentState[5]).grid(row=6,sticky=Tkinter.W)
     Tkinter.Checkbutton(master,text="Use BruteForceRandom",variable=CurrentState[6]).grid(row=7,sticky=Tkinter.W)
     Tkinter.Checkbutton(master,text="Use BruteForce",variable=CurrentState[7]).grid(row=8,sticky=Tkinter.W)
@@ -205,10 +205,10 @@ def CheckMissplacements(Board,CellNum=-1, Solver = 0):
             for i in range(3):
                 for j in range (3):
                     if Solver == 0:
-                        Blocknumbers.append(Board[(3*x+i)*9+(3*y+j)])
+                        Blocknumbers+=[Board[(3*x+i)*9+(3*y+j)]]
 
                     else:
-                        Blocknumbers.append(Board[(3*x+i)*9+(3*y+j)][0])
+                        Blocknumbers+=[Board[(3*x+i)*9+(3*y+j)][0]]
             for l in xrange(1,10):
                 if (Blocknumbers.count(l) > 1):
                     if(Solver == 0):
@@ -226,10 +226,10 @@ def CheckMissplacements(Board,CellNum=-1, Solver = 0):
         Rownumbers = []
         for y in range(9):
             if Solver == 0:
-                Rownumbers.append(Board[x*9+y])
+                Rownumbers+=[Board[x*9+y]]
 
             else:
-                Rownumbers.append(Board[x*9+y][0])
+                Rownumbers+=[Board[x*9+y][0]]
 
         for l in xrange(1,10):
             if (Rownumbers.count(l) > 1):
@@ -247,10 +247,10 @@ def CheckMissplacements(Board,CellNum=-1, Solver = 0):
         Collumnumbers = []
         for x in range(9):
             if Solver == 0:
-                Collumnumbers.append(Board[x*9+y])
+                Collumnumbers+=[(Board[x*9+y])]
 
             else:
-                Collumnumbers.append(Board[x*9+y][0])
+                Collumnumbers+=[(Board[x*9+y][0])]
         for l in xrange(1,10):
             if (Collumnumbers.count(l) > 1):
                 if Solver == 0:
@@ -464,11 +464,11 @@ def FindNakedPairsTripplesQuads(PossibleList):
 def FindHiddenPairsTripplesQuads(PossibleList):
     Changed=0
     for housetype in ["block","row","collumn"]:
-	    for i in range(9):
-	    	Matrix=Matrixify(PossibleList,housetype,i)
-	    	Matrix=TransposeMatrix(Matrix)
-	        for checking in range(2,5):
-		    	ChangedTemp=0
+        for i in range(9):
+            Matrix=Matrixify(PossibleList,housetype,i)
+            Matrix=TransposeMatrix(Matrix)
+            for checking in range(2,5):
+                ChangedTemp=0
                 for j in range(9):
                     check=0
                     if len(Matrix[j])==checking:
@@ -490,16 +490,13 @@ def FindHiddenPairsTripplesQuads(PossibleList):
                                 if not cellList.count(l) >0:
                                     for candidate in current:
                                         if Matrix[l].count(candidate)==1:
+
                                             Matrix[l].remove(candidate)
                                             Changed=1
                                             ChangedTemp=1
             if ChangedTemp:
-                Matrix=TransposeMatrix(Matrix)
-                PossibleList=DeMatrixify(PossibleList,Matrix,housetype,i)
-    if Changed:
-        return [PossibleList,Changed]
-    else:
-        return ["",Changed]                             
+                PossibleList=DeMatrixify(PossibleList,TransposeMatrix(Matrix),housetype,i)
+    return Changed
     
 
            
@@ -626,9 +623,6 @@ def PrepareBoard(Board1,Draw = 1):
                 NakedGroups=0
             if CurrentState[4]:
                 HiddenGroups=FindHiddenPairsTripplesQuads(PossibleList)
-                if HiddenGroups[1]:
-                    PossibleList=HiddenGroups[0]
-                HiddenGroups=HiddenGroups[1]
 
             else:
                 HiddenGroups=0
@@ -794,7 +788,7 @@ def BruteForce(PossibleList,SolvingBoard):
                     LastNotValid=1
             #print CheckMissplacements(SolvingBoard,1)
             #print SolvingBoard
-            if CheckMissplacements(SolvingBoard,-1,1)==-1 or LastNotValid: #if cell don't fit, or we tried this before, we try the next possible value for the cell
+            if CheckMissplacements(SolvingBoard,-1,CurrentCell)==-1 or LastNotValid: #if cell don't fit, or we tried this before, we try the next possible value for the cell
 
                 LastNotValid=0
                 SolvingBoard[CurrentCell][2]+=1
@@ -1101,13 +1095,16 @@ def DrawSolvingBoard(PossibleList,Board=0,TempBoard=0,DrawPossible=1,BruteList=0
 def PrintBoard(Board): #Prints board to stdout
     for i in range(9):
         if i%3==0 and not i==0:
-            print "------------------------------"
+            print "---------------------------"
         counter=0
         for j in Board[(i*9):((i+1)*9)]:
             if counter%3==0 and not counter==0:
                 print "|",
             if j in (1,2,3,4,5,6,7,8,9):
-                print str(j)+" ",
+                if counter%3==2:
+                    print j,
+                else:
+                    print str(j)+" ",
             else:
                 print ". ",
             counter+=1
@@ -1197,6 +1194,7 @@ Graphics=1
 global Verbose
 Verbose=0
 CurrentState=[1]*8
+CurrentState[4]=0 #Not Working correctly
 if len(sys.argv)>1: #If given argument, run in commandline only
                     #This part is not key functionality and should b considred unstable/unreliable
     Graphics=0
@@ -1205,10 +1203,14 @@ if len(sys.argv)>1: #If given argument, run in commandline only
     if "--solve" in sys.argv:
         if "--Norandombrute" in sys.argv:
                 CurrentState=[1,1,1,1,1,1,0,1] 
+        if "--NoHiddenPairs" in sys.argv:
+                print "Won't try to find hidden groups"
+                CurrentState[4]=0
         #try to set verbose
         if "--verbose" in sys.argv or "-v" in sys.argv:
             Verbose=1
         if "--benchmark" in sys.argv:
+            import time
             #Run in benchmark mode Take file and number of boards as input # this mode is not stable. Keep or inputfile in the right format, else we will get errors.
             try:
                 filename=sys.argv[sys.argv.index("--benchmark")+1]
@@ -1221,8 +1223,10 @@ if len(sys.argv)>1: #If given argument, run in commandline only
             f=open(filename)
             lines=f.readlines()
             testinglines=random.sample(range(len(lines)),testcount) #generate list of random lines to be tested
-            for i in testinglines:
-                GivenBoard=lines[i][:-1]
+            solvednumber=0
+            starttime=time.time()
+            for line in testinglines:
+                GivenBoard=lines[line][:-1]
                 current=0
                 for char in GivenBoard:
                     if char in ('0','1','2','3','4','5','6','7','8','9','.'):
@@ -1250,7 +1254,11 @@ if len(sys.argv)>1: #If given argument, run in commandline only
                         #Print the solved Board
                         for i in range(81):
                             Temp[i]=SolvedBoard[i][0]
-    
+                        solvednumber+=1
+                        Curtime=time.time()-starttime
+                        averegatime=Curtime/solvednumber
+                        print "Boards Solved :" +str(solvednumber)
+                        print "Average time :" +str(averegatime)
                         AsString=0
                         if "--string" in sys.argv:
                             AsString=1
@@ -1584,8 +1592,8 @@ while 1:
                 testinglines=random.sample(range(len(lines)),testcount) #generate list of random lines to be tested
                 solvednumber=0
                 starttime=time.time()
-                for i in testinglines:
-                    GivenBoard=lines[i][:-1]
+                for line in testinglines:
+                    GivenBoard=lines[line][:-1]
                     current=0
                     for char in GivenBoard:
                         if char in ('0','1','2','3','4','5','6','7','8','9','.'):
