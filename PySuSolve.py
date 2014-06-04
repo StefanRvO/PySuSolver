@@ -25,7 +25,7 @@ def ChooseSolvingAlgorithm(CurrentState):
     #Returns a list with the new values
     master=Tkinter.Tk()
     master.title("Algorithms")
-    for i in range(8):
+    for i in xrange(8):
         CurrentState[i]=Tkinter.IntVar(master=master,value=CurrentState[i])
         
     Tkinter.Label(master,text="Which solving algorithm(s)\nshould be used").grid(row=0) #Title, left alligned (sticky is allignment, W is west
@@ -39,7 +39,7 @@ def ChooseSolvingAlgorithm(CurrentState):
     Tkinter.Checkbutton(master,text="Use BruteForce",variable=CurrentState[7]).grid(row=8,sticky=Tkinter.W)
     Tkinter.Button(master,text="Ok",command=master.quit).grid(row=9)
     master.mainloop()
-    for i in range(8):
+    for i in xrange(8):
         CurrentState[i]=CurrentState[i].get()
     master.withdraw()
     return CurrentState    
@@ -61,7 +61,7 @@ class BoardEnterBox:
         self.boardstr=""
         self.master=Tkinter.Tk()
         self.entrybox=Tkinter.Entry(self.master,width=60)
-        for i in range(81):
+        for i in xrange(81):
             if not self.BoardNumbers[i]=="":
                 self.boardstr+=str(self.BoardNumbers[i])
             else:
@@ -145,8 +145,8 @@ def EnterBoardAsString(BoardNumbers):
 
 def TransposeMatrix(Matrix):
     NewMatrix=[[],[],[],[],[],[],[],[],[]]
-    for i in range(9):
-        for j in range(9):
+    for i in xrange(9):
+        for j in xrange(9):
              if i+1 in Matrix[j]:
                  NewMatrix[i].append(j+1)
     return NewMatrix
@@ -161,12 +161,12 @@ def Matrixify(PossibleList,housetype,number):
         return Matrix
             
     elif housetype=="row":
-        for y in range(9):
+        for y in xrange(9):
             Matrix.append(PossibleList[number*9+y])
         return Matrix
             
     elif housetype=="collumn":
-        for x in range(9):
+        for x in xrange(9):
             Matrix.append(PossibleList[x*9+number])
         return Matrix
         
@@ -179,12 +179,12 @@ def DeMatrixify(PossibleList,Matrix,housetype,number):
         return PossibleList
             
     elif housetype=="row":
-        for y in range(9):
+        for y in xrange(9):
             PossibleList[number*9+y]=Matrix[y]
         return PossibleList
             
     elif housetype=="collumn":
-        for x in range(9):
+        for x in xrange(9):
             PossibleList[x*9+number]=Matrix[x]
         return PossibleList
     
@@ -202,8 +202,8 @@ def CheckMissplacements(Board,CellNum=-1, Solver = 0):
                 x=CellNum%3
                 y=CellNum/27
             Blocknumbers=[]
-            for i in range(3):
-                for j in range (3):
+            for i in xrange(3):
+                for j in xrange (3):
                     if Solver == 0:
                         Blocknumbers+=[Board[(3*x+i)*9+(3*y+j)]]
 
@@ -224,7 +224,7 @@ def CheckMissplacements(Board,CellNum=-1, Solver = 0):
         if not CellNum==-1:
             x=CellNum/9
         Rownumbers = []
-        for y in range(9):
+        for y in xrange(9):
             if Solver == 0:
                 Rownumbers+=[Board[x*9+y]]
 
@@ -245,7 +245,7 @@ def CheckMissplacements(Board,CellNum=-1, Solver = 0):
         if not CellNum==-1:
             y=CellNum%9
         Collumnumbers = []
-        for x in range(9):
+        for x in xrange(9):
             if Solver == 0:
                 Collumnumbers+=[(Board[x*9+y])]
 
@@ -269,7 +269,7 @@ def FillCandidates(Board,OldBoard=0,CandList=0):
     if not OldBoard==0:
         CellList=[]
         CheckList=[]
-        for i in range(81):
+        for i in xrange(81):
             if not Board[i]==OldBoard[i]:
                 CellList.append(i)
 
@@ -278,23 +278,23 @@ def FillCandidates(Board,OldBoard=0,CandList=0):
             collumn=l%9
             boxX=l%3
             boxY=l/27
-            for i in range(3):
-                for j in range (3):
+            for i in xrange(3):
+                for j in xrange (3):
                     number=(3*boxX+i)*9+(3*boxY+j)
                     if not number in CheckList:
                         CheckList.append(number)
-            for y in range(9):
+            for y in xrange(9):
                 number=row*9+y
                 if not number in CheckList:
                     CheckList.append(number)
                     
-            for x in range(9):
+            for x in xrange(9):
                 number=x*9+collumn
                 if not number in CheckList:
                     CheckList.append(number)
     PossibleList=[""] * 81
         
-    for i in range(81):
+    for i in xrange(81):
         if not OldBoard==0:
             if not i in CheckList:
                 PossibleList[i]=CandList[i]
@@ -303,7 +303,7 @@ def FillCandidates(Board,OldBoard=0,CandList=0):
             PossibleList[i] = [Board[i][0]]
         else:
             PossibleList[i] = []
-            for j in range(1,10):
+            for j in xrange(1,10):
                 Board[i][0] = j
                 if not CheckMissplacements(Board,i,1) == -1:
                     PossibleList[i].append(j)
@@ -322,12 +322,12 @@ def FindHiddenSingles(PossibleList,Board):
     #Check each row, collumn and block, and if a number only is candidate in one cell, it means that it must be that cell
     #Blocks:
     Changed = 0
-    for x in range(3):
-        for y in range(3):
-            for num in range(1, 10): #check each number in this block
+    for x in xrange(3):
+        for y in xrange(3):
+            for num in xrange(1, 10): #check each number in this block
                 cellList = []
-                for i in range(3):
-                    for j in range(3):
+                for i in xrange(3):
+                    for j in xrange(3):
                         if PossibleList[(3*x+i)*9+(3*y+j)].count(num) == 1:
                             cellList.append((3*x+i)*9+(3*y+j))
                 if len(cellList) == 1:
@@ -338,10 +338,10 @@ def FindHiddenSingles(PossibleList,Board):
                         Changed = 1
                         #print "blok, num :"+str(num)+" celle "+str(cellList[0])
     #rows
-    for x in range(9):
-        for num in range(1,10):
+    for x in xrange(9):
+        for num in xrange(1,10):
             cellList = []
-            for y in range(9):
+            for y in xrange(9):
                 if PossibleList[x*9+y].count(num) == 1:
                     cellList.append(x*9+y)
             if len(cellList) == 1:
@@ -352,10 +352,10 @@ def FindHiddenSingles(PossibleList,Board):
                     Changed = 1
                     #print "raekke, num :"+str(num)+" celle"+str(cellList[0])
     #Collumns
-    for y in range(9):
-        for num in range(1,10):
+    for y in xrange(9):
+        for num in xrange(1,10):
             cellList = []
-            for x in range(9):
+            for x in xrange(9):
                 if PossibleList[x*9+y].count(num) == 1:
                     cellList.append(x*9+y)
             if len(cellList) == 1:
@@ -373,7 +373,7 @@ def FindNakedSingles(PossibleList,Board,Draw=1):
     Changed = 0
     while check == 1:
         check = 0
-        for i in range(81):
+        for i in xrange(81):
             if not Board[i][1] == 1:
                 if len(PossibleList[i]) == 1: #We have found a naked single
                     Changed = 1
@@ -388,8 +388,8 @@ def FindNakedPairsTripplesQuads(PossibleList):
     #If two cells in a group (row, collum, block) contains the same two candidates, these candidates can be removed from the rest of the cells in the group
     #loop through all cells, searching for a cell with two candidates
     Changed=0
-    for checking in range(2,5):
-        for i in range(81):
+    for checking in xrange(2,5):
+        for i in xrange(81):
             if len(PossibleList[i]) == checking:
                 current = PossibleList[i]
                 #if we find one, search through block, row and collum for the same pair.
@@ -397,7 +397,7 @@ def FindNakedPairsTripplesQuads(PossibleList):
                 collumn = i/9
                 #search through row
                 cellList = [i]
-                for l in range(9):
+                for l in xrange(9):
                     if not row+l*9 == i:
                         numbersfound = 0
                         for candidate in current:
@@ -407,7 +407,7 @@ def FindNakedPairsTripplesQuads(PossibleList):
                             cellList.append(row+l*9)
 
                 if len(cellList) == checking: #we have found a naked pair/tripple/quad.
-                    for l in range(9):
+                    for l in xrange(9):
                         if not cellList.count(row+l*9) > 0: #check if we should delete in this cell
                             for candidate in current:
                                 if PossibleList[row+l*9].count(candidate) == 1:
@@ -415,7 +415,7 @@ def FindNakedPairsTripplesQuads(PossibleList):
                                     Changed = 1
                 #search through collumn
                 cellList = [i]
-                for l in range(9):
+                for l in xrange(9):
                     if not collumn*9+l==i:
                         numbersfound=0
                         for candidate in current:
@@ -425,7 +425,7 @@ def FindNakedPairsTripplesQuads(PossibleList):
                             cellList.append(collumn*9+l)
 
                 if len(cellList)==checking: #we have found a naked pair/tripple/quad.
-                    for l in range(9):
+                    for l in xrange(9):
                         if not cellList.count(collumn*9+l)>0: #check if we should delete in this cell
                             for candidate in current:
                                 if PossibleList[collumn*9+l].count(candidate)==1:
@@ -436,8 +436,8 @@ def FindNakedPairsTripplesQuads(PossibleList):
                     #find out whick block we belongs to
                 blockX=collumn/3
                 blockY=row/3
-                for x in range(3):
-                    for y in range(3):
+                for x in xrange(3):
+                    for y in xrange(3):
                         if not (blockX*3+x)*9+(blockY*3+y)==i:
                             numbersfound=0
                             for candidate in current:
@@ -447,8 +447,8 @@ def FindNakedPairsTripplesQuads(PossibleList):
                                 cellList.append((blockX*3+x)*9+(blockY*3+y))
 
                 if len(cellList)==checking: #we have found a naked pair/tripple/quad.
-                    for x in range(3):
-                        for y in range(3):
+                    for x in xrange(3):
+                        for y in xrange(3):
                             if not cellList.count((blockX*3+x)*9+(blockY*3+y))>0:
                                 for candidate in current:
                                     if PossibleList[(blockX*3+x)*9+(blockY*3+y)].count(candidate)==1:
@@ -464,18 +464,18 @@ def FindNakedPairsTripplesQuads(PossibleList):
 def FindHiddenPairsTripplesQuads(PossibleList):
     Changed=0
     for housetype in ["block","row","collumn"]:
-        for i in range(9):
+        for i in xrange(9):
             Matrix=Matrixify(PossibleList,housetype,i)
             Matrix=TransposeMatrix(Matrix)
-            for checking in range(2,5):
+            for checking in xrange(2,5):
                 ChangedTemp=0
-                for j in range(9):
+                for j in xrange(9):
                     check=0
                     if len(Matrix[j])==checking:
                         check=1
                         current=Matrix[j]
                         cellList=[j]
-                        for l in range(9):
+                        for l in xrange(9):
                             if not l==j:
                                 numbersfound=0
                                 for candidate in current:
@@ -486,7 +486,7 @@ def FindHiddenPairsTripplesQuads(PossibleList):
                     if check:
                         if len(cellList)==checking: 
                             #we have found a hidden pair/tripple/quad.
-                            for l in range(9):
+                            for l in xrange(9):
                                 if not cellList.count(l) >0:
                                     for candidate in current:
                                         if Matrix[l].count(candidate)==1:
@@ -508,12 +508,12 @@ def FindHiddenPairsTripplesQuads(PossibleList):
 def FindPointingPairs(PossibleList):
     #If a candidate value inside a box only exists in one row or collumn, it can be removed from the same row or collumn in other boxes.
     Changed=0
-    for x in range(3):
-        for y in range(3):
-            for num in range(1,10):
+    for x in xrange(3):
+        for y in xrange(3):
+            for num in xrange(1,10):
                 CellList=[]
-                for i in range(3):
-                    for j in range(3):
+                for i in xrange(3):
+                    for j in xrange(3):
                         if PossibleList[(3*x+i)*9+(3*y+j)].count(num)==1:
                             CellList.append((3*x+i,3*y+j))
                 if len(CellList)==3 or len(CellList)==2:
@@ -534,7 +534,7 @@ def FindPointingPairs(PossibleList):
                         for cell in CellList:
                             skipThese.append(cell[1])
                         #Delete in all others
-                        for thiscollumn in range(9):
+                        for thiscollumn in xrange(9):
                             if not skipThese.count(thiscollumn)==1:
                                 if PossibleList[row*9+thiscollumn].count(num)==1:
                                     PossibleList[row*9+thiscollumn].remove(num)
@@ -548,7 +548,7 @@ def FindPointingPairs(PossibleList):
                         for cell in CellList:
                             skipThese.append(cell[0])
                         #Delete in all others
-                        for thisrow in range(9):
+                        for thisrow in xrange(9):
                             if not skipThese.count(thisrow)==1:
                                 if PossibleList[thisrow*9+collumn].count(num)==1:
                                     PossibleList[thisrow*9+collumn].remove(num)
@@ -564,16 +564,16 @@ def FindPointingPairs(PossibleList):
 def PrepareBoard(Board1,Draw = 1):
     #Make a copy of Board1 and put in board (this is neccesary for our bruteforcing
     Board=[]
-    for i in range(81):
+    for i in xrange(81):
         Board.append([])
-        for l in range (3):
+        for l in xrange (3):
             Board[i].append(Board1[i][l])
     if CurrentState[0]:
         PossibleList=FillCandidates(Board)
     else:
         #We fill all non-user entered cells with all candidates
         PossibleList=[""]*81
-        for i in range(81):
+        for i in xrange(81):
             if Board[i][1] == 1:
                 PossibleList[i] = [Board[i][0]]
             else:
@@ -581,13 +581,15 @@ def PrepareBoard(Board1,Draw = 1):
     while True:
     
         OldBoard=[] #Make a copy of the board for comparrison
-        for i in range(81):
+        for i in xrange(81):
             OldBoard.append([])
-            for l in range (3):
+            for l in xrange (3):
                 OldBoard[i].append(Board[i][l])
         while True:
             if Graphics and GetKeyEventsWSolving()==-1:
                 return -2
+            if CurrentState[5]:
+                FindPointingPairs(PossibleList)
             if CurrentState[1]:
                 naked=FindNakedSingles(PossibleList,Board)
             else:
@@ -609,13 +611,19 @@ def PrepareBoard(Board1,Draw = 1):
                 if CurrentState[0]:
                     if Graphics and Draw:
                         DrawSolvingBoard(PossibleList)
-                    PossibleList=FillCandidates(Board,OldBoard,PossibleList)
+                    if not Board==OldBoard:
+                        PossibleList=FillCandidates(Board,OldBoard,PossibleList)
+                if CurrentState[3]:
+                    FindNakedPairsTripplesQuads(PossibleList)
+                if CurrentState[4]:
+                    FindHiddenPairsTripplesQuads(PossibleList)
+                        
         while True:
             #copy PossibleList to tempboard
             TempList=[]
-            for cell in range(len(PossibleList)):
+            for cell in xrange(len(PossibleList)):
                 TempList.append([])
-                for l in range(len(PossibleList[cell])):
+                for l in xrange(len(PossibleList[cell])):
                     TempList[cell].append(PossibleList[cell][l])
             if CurrentState[3]:        
                 NakedGroups=FindNakedPairsTripplesQuads(PossibleList)
@@ -670,14 +678,14 @@ def BruteForceRandom(PossibleList,SolvingBoard,tryborder):
     #At this field we fill in the first candidate.
     #We try to solve using logic. If it fails we move on to the next candidate and tries again.
     #If we can't solve with any of the candidates, we select another field and does the same, but now with both fields.
-    #We do this only down to 5 levels. It is probabaly ore effective to use the standard bruteforce if we haven't solved at this point
+    #We do this only down to 5 levels. It is probabaly more effective to use the standard bruteforce if we haven't solved at this point
     #(5 levels really means ~5^5)= tries
     #A list containing the cells we are trying on
     
 
     testing=0
     CellList=[]
-    for i in range(5):
+    for i in xrange(4):
         while True:
             RandomCell=random.randint(0,80)
             if not SolvingBoard[RandomCell][1]==1 or RandomCell in CellList:
@@ -701,51 +709,47 @@ def BruteForceRandom(PossibleList,SolvingBoard,tryborder):
                     SolvingBoard[CellList[2]][1]=1
                 for candidate3 in [""]+PossibleList[CellList[3]]:
                     SolvingBoard[CellList[3]][0]=candidate3
-                    if not candidate3=="":
-                        SolvingBoard[CellList[3]][1]=1
-                    for candidate4 in PossibleList[CellList[4]]:
-                        SolvingBoard[CellList[4]][0]=candidate4
-                        SolvingBoard[CellList[4]][1]=1
-                        testing+=1
-                        if testing>tryborder: #may change this number.. Trying is taking too long. return and try with some other values
-                            for i in range(5):
-                                SolvingBoard[CellList[i]][0]=""
-                                SolvingBoard[CellList[i]][1]=0
-                            return -3
-                        global Verbose
-                        Verbosetemp=Verbose
-                        Verbose=0
-                        if not CheckMissplacements(SolvingBoard,-1,1)==-1:
-                            TempList=PrepareBoard(SolvingBoard,0)
-                        else:
-                            TempList=(SolvingBoard,0)
-                        Verbose=Verbosetemp
-                        
-                        if TempList==-2:
-                            for i in range(5):
-                                SolvingBoard[CellList[i]][0]=""
-                                SolvingBoard[CellList[i]][1]=0
+                    SolvingBoard[CellList[3]][1]=1
+                    testing+=1
+                    if testing>tryborder: #may change this number.. Trying is taking too long. return and try with some other values
+                        for i in xrange(4):
+                            SolvingBoard[CellList[i]][0]=""
+                            SolvingBoard[CellList[i]][1]=0
+                        return -3
+                    global Verbose
+                    Verbosetemp=Verbose
+                    Verbose=0
+                    if not CheckMissplacements(SolvingBoard,-1,1)==-1:
+                        TempList=PrepareBoard(SolvingBoard,0)
+                    else:
+                        TempList=(SolvingBoard,0)
+                    Verbose=Verbosetemp
+                      
+                    if TempList==-2:
+                        for i in xrange(4):
+                            SolvingBoard[CellList[i]][0]=""
+                            SolvingBoard[CellList[i]][1]=0
                      
-                            return -2
-                        if Graphics:
-                            DrawSolvingBoard(PossibleList,SolvingBoard,TempList[0],0,CellList)
-                        if Verbose:
-                            print "Try number " +str(testing)
-                        Solved=1
-                        for tempcell in TempList[0]:
-                            if tempcell[0]=="":
-                                Solved=0
-                                if Verbose:
-                                    print "error"
-                                break
+                        return -2
+                    if Graphics:
+                        DrawSolvingBoard(PossibleList,SolvingBoard,TempList[0],0,CellList)
+                    if Verbose:
+                        print "Try number " +str(testing)
+                    Solved=1
+                    for tempcell in TempList[0]:
+                        if tempcell[0]=="":
+                            Solved=0
+                            if Verbose:
+                                print "error"
+                            break
                         
-                        if Solved:
-                            if not CheckMissplacements(TempList[0],-1,1)==-1:
-                                if Verbose:
-                                    print "solved"
-                                TempList[0].append(testing)
-                                return TempList[0]
-    for i in range(5):
+                    if Solved:
+                        if not CheckMissplacements(TempList[0],-1,1)==-1:
+                            if Verbose:
+                                print "solved"
+                            TempList[0].append(testing)
+                            return TempList[0]
+    for i in xrange(4):
         SolvingBoard[CellList[i]][0]=""
         SolvingBoard[CellList[i]][1]=0
                        
@@ -788,7 +792,7 @@ def BruteForce(PossibleList,SolvingBoard):
                     LastNotValid=1
             #print CheckMissplacements(SolvingBoard,1)
             #print SolvingBoard
-            if CheckMissplacements(SolvingBoard,-1,CurrentCell)==-1 or LastNotValid: #if cell don't fit, or we tried this before, we try the next possible value for the cell
+            if CheckMissplacements(SolvingBoard,CurrentCell,1)==-1 or LastNotValid: #if cell don't fit, or we tried this before, we try the next possible value for the cell
 
                 LastNotValid=0
                 SolvingBoard[CurrentCell][2]+=1
@@ -812,7 +816,7 @@ def SolveBoard(Board):
     #Here we solve the board
     #first we copy boardnumbers
     SolvingBoard=[""]*81
-    for i in range(81):
+    for i in xrange(81):
             if not BoardNumbers[i]=="":
                 SolvingBoard[i]=[BoardNumbers[i],1,0]
             else:
@@ -851,22 +855,22 @@ def SolveBoard(Board):
     if CurrentState[6]:
         #We copy the board to a temp board (for displaying the correct colors when solved
         TempBoard=[]
-        for i in range(81):
+        for i in xrange(81):
             TempBoard.append([])
-            for l in range (3):
+            for l in xrange (3):
                 TempBoard[i].append(SolvingBoard[i][l])
-        nextNumberofTries=10
+        nextNumberofTries=30
         tries=-nextNumberofTries
         SolvedBoard=-3
         while SolvedBoard==-3: #it took too long, try to call again, and keep doing so. (We should maybe stop if we have called it a certain numbe of times, or let it run to end after some tries)
             tries+=nextNumberofTries
             SolvedBoard=BruteForceRandom(PossibleList,SolvingBoard,nextNumberofTries)
-            nextNumberofTries+=5
+            nextNumberofTries+=10
     
         if not SolvedBoard in (-1,-2):
             SolvedBoard[-1]+=tries
             #Correct the values in SolvedBoard[i][1] to those of Tempboard For drawing correct colors
-            for i in range(81):
+            for i in xrange(81):
                 SolvedBoard[i][1]=TempBoard[i][1]
             return SolvedBoard
 
@@ -889,20 +893,20 @@ def GenerateBoard(difficulty):
     #This function generates a sudoku board #It is not garanteed to have an unique solution
     #First we fill up the candidate list with all candidates
     CandidateList=[]
-    for i in range(81):
+    for i in xrange(81):
         CandidateList.append([1,2,3,4,5,6,7,8,9])
     #Then we randomize the list for each cell
-    for i in range(81):
+    for i in xrange(81):
         random.shuffle(CandidateList[i])
     SolvingBoard=[]
-    for i in range(81):
+    for i in xrange(81):
         SolvingBoard.append(["",0,0])
 
     GeneratedBoard=BruteForce(CandidateList,SolvingBoard)
     if not GeneratedBoard==-1:
     #    print GeneratedBoard[-1]
         Temp=[""]*81
-        for i in range(81):
+        for i in xrange(81):
             Temp[i]=GeneratedBoard[i][0]
         GeneratedBoard=Temp
     #Now we remove cells until the board only contains the number of cells specified in difficulty
@@ -911,7 +915,7 @@ def GenerateBoard(difficulty):
 
 
         filled=0
-        for i in range(81):
+        for i in xrange(81):
             if GeneratedBoard[i] in (1,2,3,4,5,6,7,8,9):
                 filled+=1
         if filled<=difficulty:
@@ -931,7 +935,7 @@ def DrawBoard(Board,Solver=-1):
     #Color the selected field
     pygame.draw.rect(screen,SELECTEDCOLOR,pygame.Rect((SelectedField[0]*SCREENSIZE[0]/9,SelectedField[1]*SCREENSIZE[1]/9),(SCREENSIZE[0]/9+1,SCREENSIZE[1]/9+1)))
         #Draw lines vertical and horizontal, every third should be wider to mark the big and small grid.
-    for x in range(8):
+    for x in xrange(8):
         if ((x+1)%3==0):
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]),3)
             pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[1])/9*(x+1)),3)
@@ -941,7 +945,7 @@ def DrawBoard(Board,Solver=-1):
             pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[1])/9*(x+1)))
 
     #Draw numbers on board
-    for i in range(81):
+    for i in xrange(81):
             text=font.render(str(Board[i]),True,PlacedTextColor)
             screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9)+0.5)-text.get_height() / 2)))
             #print int(float(SCREENSIZE[0])/9*(x+0.5)-text.get_width() / 2)
@@ -982,7 +986,7 @@ def DrawSolvedBoard(solvedBoard,enteredBoard):
     #Color the selected field
     pygame.draw.rect(screen,SELECTEDCOLOR,pygame.Rect((SelectedField[0]*SCREENSIZE[0]/9,SelectedField[1]*SCREENSIZE[1]/9),(SCREENSIZE[0]/9+1,SCREENSIZE[1]/9+1)))
         #Draw lines vertical and horizontal, every third should be wider to mark the big and small grid.
-    for x in range(8):
+    for x in xrange(8):
         if ((x+1)%3==0):
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]),3)
             pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[1])/9*(x+1)),3)
@@ -1002,7 +1006,7 @@ def DrawSolvedBoard(solvedBoard,enteredBoard):
     else:
         #Draw the solved board.
         #user-entered values should be black, logicsolved values should be orange, bruteforce values should be blue
-        for i in range(81):
+        for i in xrange(81):
             #make the text
             if solvedBoard[i][1]==1:
                 text=font.render(str(solvedBoard[i][0]),True,LogicSolveColor) #make orange
@@ -1011,7 +1015,7 @@ def DrawSolvedBoard(solvedBoard,enteredBoard):
             #Draw
             screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9)+0.5)-text.get_height() / 2)))
             #Draw userentered numbers black
-        for i in range(81):
+        for i in xrange(81):
                 text=font.render(str(enteredBoard[i]),True,PlacedTextColor)
                 screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9)+0.5)-text.get_height() / 2)))
     pygame.display.flip()
@@ -1022,7 +1026,7 @@ def DrawSolvingBoard(PossibleList,Board=0,TempBoard=0,DrawPossible=1,BruteList=0
     screen.fill(BACKGROUNDCOLOR)
     candidatefont = pygame.font.SysFont(FONTUSED, int(ScaleFont*float(FONTBASIS)/28))
         #Draw Lines
-    for x in range(8):
+    for x in xrange(8):
         if ((x+1)%3==0):
             pygame.draw.line(screen, LineColor,(float(SCREENSIZE[0])/9*(x+1),0),(float(SCREENSIZE[0])/9*(x+1),SCREENSIZE[1]),3)
             pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[1])/9*(x+1)),3)
@@ -1032,7 +1036,7 @@ def DrawSolvingBoard(PossibleList,Board=0,TempBoard=0,DrawPossible=1,BruteList=0
             pygame.draw.line(screen, LineColor,(0,float(SCREENSIZE[1])/9*(x+1)),(SCREENSIZE[0],float(SCREENSIZE[1])/9*(x+1)))
     #Draw Numbers
     if Board==0 and Board==TempBoard:
-        for i in range(81):
+        for i in xrange(81):
             if len(PossibleList[i])==1:
                 #make the text
                 text=font.render(str(PossibleList[i][0]),True,LogicSolveColor) #make orange
@@ -1046,7 +1050,7 @@ def DrawSolvingBoard(PossibleList,Board=0,TempBoard=0,DrawPossible=1,BruteList=0
 
                         screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9))+float(SCREENSIZE[0])/27*((candidate-1)%3+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9))+float(SCREENSIZE[1])/27*((candidate-1)/3+0.5)-text.get_height() / 2)))
     elif not BruteList==0:
-        for i in range(81):
+        for i in xrange(81):
             #make the text
             #print "drawing"
             if Board[i][1]==TempBoard[i][1] and not i in BruteList:
@@ -1068,7 +1072,7 @@ def DrawSolvingBoard(PossibleList,Board=0,TempBoard=0,DrawPossible=1,BruteList=0
         #Draw user entered numbers black
         
     else: #We are bruteforcing (normal)
-        for i in range(81):
+        for i in xrange(81):
             #make the text
             if Board[i][1]==1:
                 text=font.render(str(Board[i][0]),True,LogicSolveColor) #make orange if constant
@@ -1086,14 +1090,14 @@ def DrawSolvingBoard(PossibleList,Board=0,TempBoard=0,DrawPossible=1,BruteList=0
             if Board[i][1]==1 or not Board[i][0]=="":
                 screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9)+0.5)-text.get_height() / 2)))
         #Draw user entered numbers black
-    for i in range(81):
+    for i in xrange(81):
         text=font.render(str(BoardNumbers[i]),True,PlacedTextColor)
         screen.blit(text,(int(float(SCREENSIZE[0])/9*((i%9)+0.5)-text.get_width() / 2),int(float(SCREENSIZE[1])/9*((i/9)+0.5)-text.get_height() / 2)))
     pygame.display.flip()
     #pygame.time.wait(500)
     #print "Drew"
 def PrintBoard(Board): #Prints board to stdout
-    for i in range(9):
+    for i in xrange(9):
         if i%3==0 and not i==0:
             print "---------------------------"
         counter=0
@@ -1134,7 +1138,7 @@ def FetchInternetGeneratedBoard(boardtype):
         return -1
     fetchedBoard=[]
     fetchednumbers=0
-    for i in range(len(site)-10): #itterate through all characters in the fetched html
+    for i in xrange(len(site)-10): #itterate through all characters in the fetched html
     #we need to find the string 'value="' and then save the value after the " character.
     #When we have fund 81 values, we are done.
         if site[i]=='v' and site[i+1]=='a' and site[i+2]=='l' and site[i+3]=='u' and site[i+4]=='e' and site[i+5]=='=' and site[i+6]=='"':
@@ -1152,35 +1156,35 @@ def FetchInternetGeneratedBoard(boardtype):
     #split fetchedBoard up in blocks
     
     fetchedBlocks=[]
-    for i in range(9):
+    for i in xrange(9):
         fetchedBlocks.append([])
-        for j in range(9):
+        for j in xrange(9):
             fetchedBlocks[i].append(fetchedBoard[i*9+j])
             
             
     #Split each block in three parts, put in fetchedblocks
-    for i in range(9):
+    for i in xrange(9):
         temp=fetchedBlocks[i]
         fetchedBlocks[i]=[[],[],[]]
-        for j in range(3):
+        for j in xrange(3):
             fetchedBlocks[i][j]=temp[j*3:(j+1)*3]
     
     #put the split up blocks in collumns
     fetchedCollumns=[[]]*9
-    for i in range(9):
-        for j in range(3):
+    for i in xrange(9):
+        for j in xrange(3):
             for cell in fetchedBlocks[j+(i/3)*3][i%3][0:3]:
                 fetchedCollumns[i].append(cell)
     
     #Put the collumns into final board
     FinalBoard=[]
-    for i in range(9):
+    for i in xrange(9):
         for cell in fetchedCollumns[i]:
             FinalBoard.append(cell)
     
     
     #Lastly, we want to replace '"' with "", and make the char to int's
-    for i in range(81):
+    for i in xrange(81):
         if FinalBoard[i]=='"':
             FinalBoard[i]=""
         else:
@@ -1242,7 +1246,7 @@ if len(sys.argv)>1: #If given argument, run in commandline only
                 Ready=CheckMissplacements(BoardNumbers,-1,0)
                 #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
                 numbers=[]
-                for i in range(81):
+                for i in xrange(81):
                         numbers.append(BoardNumbers[i])
                 enteredNumbers=81-numbers.count("")
                 if Ready==0:
@@ -1252,7 +1256,7 @@ if len(sys.argv)>1: #If given argument, run in commandline only
                             print  SolvedBoard[-1]
                         Temp=[""]*81
                         #Print the solved Board
-                        for i in range(81):
+                        for i in xrange(81):
                             Temp[i]=SolvedBoard[i][0]
                         solvednumber+=1
                         Curtime=time.time()-starttime
@@ -1294,7 +1298,7 @@ if len(sys.argv)>1: #If given argument, run in commandline only
             Ready=CheckMissplacements(BoardNumbers,-1,0)
             #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
             numbers=[]
-            for i in range(81):
+            for i in xrange(81):
                     numbers.append(BoardNumbers[i])
             enteredNumbers=81-numbers.count("")
             #if enteredNumbers<=-1:
@@ -1308,7 +1312,7 @@ if len(sys.argv)>1: #If given argument, run in commandline only
                         print  SolvedBoard[-1]
                     Temp=[""]*81
                     #Print the solved Board
-                    for i in range(81):
+                    for i in xrange(81):
                         Temp[i]=SolvedBoard[i][0]
 
                     AsString=0
@@ -1455,7 +1459,7 @@ while 1:
 
                 #Create string of board
                 boardstr=""
-                for i in range(81):
+                for i in xrange(81):
                         if not BoardNumbers[i]=="":
                             boardstr+=str(BoardNumbers[i])
                         else:
@@ -1504,7 +1508,7 @@ while 1:
                 Ready=CheckMissplacements(BoardNumbers,-1,0)
                 #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
                 numbers=[]
-                for i in range(81):
+                for i in xrange(81):
                         numbers.append(BoardNumbers[i])
                 enteredNumbers=81-numbers.count("")
                 if enteredNumbers<16:
@@ -1522,7 +1526,7 @@ while 1:
                         Temp=[""]*81
 
                         #Print the solved Board
-                        for i in range(81):
+                        for i in xrange(81):
                             Temp[i]=SolvedBoard[i][0]
                         PrintBoard(Temp)
 
@@ -1589,6 +1593,8 @@ while 1:
                     break
                 elif testcount>len(lines):
                     testcount=len(lines)
+                VerboseTemp=Verbose
+                Verbose=0
                 testinglines=random.sample(range(len(lines)),testcount) #generate list of random lines to be tested
                 solvednumber=0
                 starttime=time.time()
@@ -1609,7 +1615,7 @@ while 1:
                     Ready=CheckMissplacements(BoardNumbers,-1,0)
                     #count number of entered numbers, we have to have at least 16 (comment out if you want to solve anyway!)
                     numbers=[]
-                    for i in range(81):
+                    for i in xrange(81):
                             numbers.append(BoardNumbers[i])
                     enteredNumbers=81-numbers.count("")
                     if Ready==0:
@@ -1619,7 +1625,7 @@ while 1:
                                 print  SolvedBoard[-1]
                             Temp=[""]*81
                             #Print the solved Board
-                            for i in range(81):
+                            for i in xrange(81):
                                 Temp[i]=SolvedBoard[i][0]
         
                             AsString=0
@@ -1644,7 +1650,7 @@ while 1:
                             print "Average time :" +str(averegatime)
                     
                     
-                    
+                Verbose=VerboseTemp    
             if Enterpressed==0:
                 DrawBoard(BoardNumbers)
             Enterpressed=0
